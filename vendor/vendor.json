@@ -1,6 +1,31 @@
 {
 	"comment": "",
 	"ignore": "test",
-	"package": [],
+	"package": [
+		{
+			"checksumSHA1": "VMh7Elbap4HldDHUBximmTxWqQY=",
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "cdb2f3857cfba7388d28dfe38316b0a39e694215",
+			"revisionTime": "2019-02-10T13:00:17Z"
+		},
+		{
+			"checksumSHA1": "CVmt+DETeuUZkKC6MUJbTqc/iYU=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "74369b46fc6756741c016591724fd1cb8e26845f",
+			"revisionTime": "2019-02-10T12:59:10Z"
+		},
+		{
+			"checksumSHA1": "GS83dscwl/xqUgWCj+6k97Ej7UE=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "983097b1a8a340cd1cc7df17d735154d89e10b1a",
+			"revisionTime": "2019-02-13T08:58:22Z"
+		},
+		{
+			"checksumSHA1": "IwB9A6UjgGYrHIBFJEamnrXPeNo=",
+			"path": "golang.org/x/sys/windows",
+			"revision": "983097b1a8a340cd1cc7df17d735154d89e10b1a",
+			"revisionTime": "2019-02-13T08:58:22Z"
+		}
+	],
 	"rootPath": "github.com/cakesmith/webrender"
 }
