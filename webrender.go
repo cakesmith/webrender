@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	log = logrus.WithField("cmd", "webrender")
+	log = logrus.New()
 )
 
 func handleHello(w http.ResponseWriter, r *http.Request) {

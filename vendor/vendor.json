@@ -9,6 +9,67 @@
 			"revisionTime": "2019-02-10T13:00:17Z"
 		},
 		{
+			"checksumSHA1": "qWSfv6nFxKXv9aIvOB/A+oJ47a8=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "f37d1588608ec036fa9b0b7b8afbde47dc06aea9",
+			"revisionTime": "2018-02-19T07:06:29Z"
+		},
+		{
+			"checksumSHA1": "Sz+FH9+yodrat2PzvZmKu6u2e3M=",
+			"path": "github.com/jackwakefield/gopac",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "aN7wtLTH+mLT3AkxfiOpbW1HWtQ=",
+			"origin": "github.com/jackwakefield/gopac/vendor/github.com/robertkrimen/otto",
+			"path": "github.com/robertkrimen/otto",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "q1HKpLIWi3tTT5W5LqMlwPcGmyQ=",
+			"origin": "github.com/jackwakefield/gopac/vendor/github.com/robertkrimen/otto/ast",
+			"path": "github.com/robertkrimen/otto/ast",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "L0KsB2EzTlPgv0iae3q3SukNW7U=",
+			"origin": "github.com/jackwakefield/gopac/vendor/github.com/robertkrimen/otto/dbg",
+			"path": "github.com/robertkrimen/otto/dbg",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "euDLJKhw4doeTSxjEoezjxYXLzs=",
+			"origin": "github.com/jackwakefield/gopac/vendor/github.com/robertkrimen/otto/file",
+			"path": "github.com/robertkrimen/otto/file",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "w5wu2avr5PWCJy5dlEhlY3rwb+w=",
+			"origin": "github.com/jackwakefield/gopac/vendor/github.com/robertkrimen/otto/parser",
+			"path": "github.com/robertkrimen/otto/parser",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "7J/7NaYRqKhBvZ+dTIutsEoEgFw=",
+			"origin": "github.com/jackwakefield/gopac/vendor/github.com/robertkrimen/otto/registry",
+			"path": "github.com/robertkrimen/otto/registry",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "/jMXYuXycBpTqWhRyJ2xsqvHvQI=",
+			"origin": "github.com/jackwakefield/gopac/vendor/github.com/robertkrimen/otto/token",
+			"path": "github.com/robertkrimen/otto/token",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
 			"checksumSHA1": "CVmt+DETeuUZkKC6MUJbTqc/iYU=",
 			"path": "golang.org/x/crypto/ssh/terminal",
 			"revision": "74369b46fc6756741c016591724fd1cb8e26845f",
@@ -25,6 +86,26 @@
 			"path": "golang.org/x/sys/windows",
 			"revision": "983097b1a8a340cd1cc7df17d735154d89e10b1a",
 			"revisionTime": "2019-02-13T08:58:22Z"
+		},
+		{
+			"checksumSHA1": "4BwmmgQUhWtizsR2soXND0nqZ1I=",
+			"origin": "github.com/jackwakefield/gopac/vendor/gopkg.in/sourcemap.v1",
+			"path": "gopkg.in/sourcemap.v1",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "GDXPA04g0Dfwu2w++JiOKkYuZEc=",
+			"origin": "github.com/jackwakefield/gopac/vendor/gopkg.in/sourcemap.v1/base64vlq",
+			"path": "gopkg.in/sourcemap.v1/base64vlq",
+			"revision": "c4d2e0b9a672ebe23166683a72536344384b0e99",
+			"revisionTime": "2018-08-23T14:57:55Z"
+		},
+		{
+			"checksumSHA1": "lWy3oETpddf9sM9XSRl7bbx2lgk=",
+			"path": "stash.iaccap.com/steng/qualia-clicker/connection",
+			"revision": "fc3c249a491784aad27b2d07d894e1ce792a232c",
+			"revisionTime": "2019-02-12T19:55:15Z"
 		}
 	],
 	"rootPath": "github.com/cakesmith/webrender"
