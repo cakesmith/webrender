@@ -5,14 +5,11 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"net/url"
-	"os"
-	"os/signal"
 	"time"
 )
 
 type Remote struct {
 	OnRead    func(n int, message []byte, err error) error
-	interrupt chan os.Signal
 	write     chan []byte
 	cleanup   chan struct{}
 }
@@ -27,9 +24,6 @@ func (client *Remote) Write(p []byte) (int, error) {
 }
 
 func (client *Remote) Close() error {
-	if client.interrupt == nil {
-		return errors.New("cannot call Close() before client is initialized with client.Start()")
-	}
 	client.cleanup <- struct{}{}
 	return nil
 }
@@ -37,9 +31,6 @@ func (client *Remote) Close() error {
 func (client *Remote) Start(addr string, id string) error {
 
 	log.Infof("Starting client to connect to %v", addr)
-
-	client.interrupt = make(chan os.Signal, 1)
-	signal.Notify(client.interrupt, os.Interrupt)
 
 	done := make(chan struct{})
 
@@ -95,10 +86,6 @@ func (client *Remote) Start(addr string, id string) error {
 
 		case <-done:
 			return nil
-
-		case <-client.interrupt:
-			log.Info("interrupt received")
-			client.cleanup <- struct{}{}
 
 		case <-client.cleanup:
 			log.Info("cleaning up")

@@ -116,7 +116,9 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case message, ok := <-c.send:
+
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+
 			if !ok {
 				// The hub closed the channel.
 				log.Info("hub closed channel")
@@ -125,8 +127,11 @@ func (c *Client) writePump() {
 			}
 
 			w, err := c.conn.NextWriter(websocket.TextMessage)
+
 			if err != nil {
-				log.Error(errors.Wrap(err, "error getting next writer"))
+				if websocket.IsUnexpectedCloseError(err, 1000) {
+					log.Error(errors.Wrap(err, "error getting next writer"))
+				}
 				return
 			}
 

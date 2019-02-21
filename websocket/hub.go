@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	log = logrus.WithField("cmd", "hub")
+	log = logrus.WithField("cmd", "websocket")
 )
 
 
