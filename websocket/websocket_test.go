@@ -3,7 +3,6 @@ package websocket_test
 import (
 	"github.com/cakesmith/webrender/websocket"
 	"log"
-	"stash.iaccap.com/steng/qualia-clicker/connection"
 	"sync"
 	"testing"
 )
@@ -40,7 +39,7 @@ func TestWebsocket(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	remote := connection.Client{}
+	remote := websocket.Remote{}
 
 	remote.OnRead = func(n int, messageBytes []byte, err error) error {
 		defer wg.Done()
@@ -64,7 +63,7 @@ func TestWebsocket(t *testing.T) {
 	}()
 
 	go func() {
-		err := remote.Start(true, hub.Addr(), clientId)
+		err := remote.Start(hub.Addr(), clientId)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -1,29 +1,23 @@
-package connection
+package websocket
 
 import (
-	"errors"
 	"fmt"
-	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
-	"github.com/jackwakefield/gopac"
-	"net/http"
+	"github.com/pkg/errors"
 	"net/url"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 )
 
-var log = logrus.WithField("cmd", "connection")
-
-type Client struct {
+type Remote struct {
 	OnRead    func(n int, message []byte, err error) error
 	interrupt chan os.Signal
 	write     chan []byte
 	cleanup   chan struct{}
 }
 
-func (client *Client) Write(p []byte) (int, error) {
+func (client *Remote) Write(p []byte) (int, error) {
 	if client.write == nil {
 		return 0, errors.New("cannot call Write() before client is initialized with client.Start()")
 	}
@@ -32,7 +26,7 @@ func (client *Client) Write(p []byte) (int, error) {
 
 }
 
-func (client *Client) Close() error {
+func (client *Remote) Close() error {
 	if client.interrupt == nil {
 		return errors.New("cannot call Close() before client is initialized with client.Start()")
 	}
@@ -40,38 +34,9 @@ func (client *Client) Close() error {
 	return nil
 }
 
-func setupClientProxy(addr string) (*websocket.Dialer, error) {
-	parser := gopac.Parser{}
+func (client *Remote) Start(addr string, id string) error {
 
-	err := parser.ParseUrl("http://127.0.0.1:19876/pac.js")
-	if err != nil {
-		return nil, errors.New("error parsing proxy url " + err.Error())
-	}
-
-	proxy, err := parser.FindProxy(fmt.Sprintf("http://%v", addr), "localhost")
-	if err != nil {
-		return nil, errors.New("error finding proxy " + err.Error())
-	}
-
-	fmt.Printf("found PAC entry %v\n", proxy)
-
-	uri, err := url.Parse("//" + strings.Fields(proxy)[1])
-	if err != nil {
-		return nil, errors.New("error parsing url " + err.Error())
-	}
-
-	uri.Scheme = "http"
-
-	fmt.Printf("setting Dialer proxy to %v\n", uri.String())
-
-	dialer := websocket.Dialer{}
-	dialer.Proxy = http.ProxyURL(uri)
-	return &dialer, nil
-}
-
-func (client *Client) Start(skipProxy bool, addr string, id string) error {
-
-	log.Infof("Starting client to connect to %v ...\n", addr)
+	log.Infof("Starting client to connect to %v", addr)
 
 	client.interrupt = make(chan os.Signal, 1)
 	signal.Notify(client.interrupt, os.Interrupt)
@@ -81,19 +46,7 @@ func (client *Client) Start(skipProxy bool, addr string, id string) error {
 	client.cleanup = make(chan struct{})
 	client.write = make(chan []byte)
 
-	var dialer *websocket.Dialer
-
-	if skipProxy {
-		log.Info("using default Dialer")
-		dialer = websocket.DefaultDialer
-	} else {
-		log.Info("using proxied Dialer to %v\n", addr)
-		var err error
-		dialer, err = setupClientProxy(addr)
-		if err != nil {
-			return errors.New("error setting up client proxy: " + err.Error())
-		}
-	}
+	dialer := websocket.DefaultDialer
 
 	u := url.URL{Scheme: "ws", Host: addr, Path: fmt.Sprintf("/%v", id)}
 
@@ -104,7 +57,7 @@ func (client *Client) Start(skipProxy bool, addr string, id string) error {
 		return errors.New(fmt.Sprintf("dial: %v", err))
 	}
 
-	log.Info("client connected.")
+	log.Info("connected")
 
 	defer conn.Close()
 
@@ -167,3 +120,4 @@ func (client *Client) Start(skipProxy bool, addr string, id string) error {
 
 	return nil
 }
+
