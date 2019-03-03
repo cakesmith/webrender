@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/Sirupsen/logrus"
 	"net/http"
 	"os"
-	"github.com/Sirupsen/logrus"
 )
 
 var (
@@ -21,7 +21,9 @@ func main() {
 		log.WithField("PORT", port).Fatal("$PORT must be set")
 	}
 
-	http.Handle("/", http.FileServer(http.Dir("./public")))
+
+
+	http.Handle("/", http.FileServer(http.Dir("public/app")))
 	http.HandleFunc("/ws", handleHello)
 	log.Println(http.ListenAndServe(":"+port, nil))
 }

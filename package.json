@@ -1,0 +1,30 @@
+{
+  "name": "webrender",
+  "version": "1.0.0",
+  "description": "webrender front end",
+  "main": "index.js",
+  "scripts": {
+    "start": "./webrender",
+    "cy:run": "cypress run",
+    "cy:version": "cypress version",
+    "test": "start-server-and-test start http://localhost:$PORT cy:run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cakesmith/webrender.git"
+  },
+  "author": "Nick LaRosa (nick@larosa.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cakesmith/webrender/issues"
+  },
+  "homepage": "https://github.com/cakesmith/webrender#readme",
+  "dependencies": {
+    "http-server": "0.11.1",
+    "npm-run-all": "^4.1.2"
+  },
+  "devDependencies": {
+    "cypress": "^3.1.5",
+    "start-server-and-test": "^1.7.11"
+  }
+}

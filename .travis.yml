@@ -1,4 +1,19 @@
-language: go
+matrix:
+  include:
 
-go:
-  1.11.x
+    - language: go
+      go:
+        1.11.x
+
+    - language: node_js
+      node_js:
+        - 10
+      cache:
+        npm: true # this cashes ~/.npm folder on Travis
+        directories:
+        # we also need to cache folder with Cypress binary
+          - ~/.cache
+      install:
+        - npm ci
+      script:
+        - $(npm bin)/cypress run
