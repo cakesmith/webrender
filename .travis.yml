@@ -1,25 +1,22 @@
 # This is a weird way of telling Travis to use the fast container-based test
 # runner instead of the slow VM-based runner.
+
 sudo: false
+language: go
+go:
+  1.11.x
+env:
+- NODE_VERSION="0.12"
 
-matrix:
-  include:
-
-    - language: go
-      go:
-        1.11.x
-      script:
-        - go test -v
-
-    - language: node_js
-      node_js:
-        - 10
-      cache:
-        npm: true # this cashes ~/.npm folder on Travis
-        directories:
-        # we also need to cache folder with Cypress binary
-          - ~/.cache
-      install:
-        - npm ci
-      script:
-        - npm test
+before_install:
+- nvm install $NODE_VERSION
+install:
+  - npm ci
+script:
+  - go test -v
+  - npm test
+cache:
+  npm: true # this cashes ~/.npm folder on Travis
+  directories:
+  # we also need to cache folder with Cypress binary
+    - ~/.cache
