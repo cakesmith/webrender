@@ -1,18 +1,21 @@
 # This is a weird way of telling Travis to use the fast container-based test
 # runner instead of the slow VM-based runner.
 
-sudo: false
 language: go
 go:
   1.11.x
+sudo: false
 env:
 - NODE_VERSION="10.15"
+- PORT=8080
 
 before_install:
 - nvm install $NODE_VERSION
 install:
   - npm ci
 script:
+  - go get ./...
+  - go build
   - go test -v
   - npm test
 cache:

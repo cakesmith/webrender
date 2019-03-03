@@ -4,7 +4,7 @@
   "description": "webrender front end",
   "main": "index.js",
   "scripts": {
-    "start": "go get ./... && go build && ./webrender",
+    "start": "./webrender",
     "cy:run": "cypress run --env PORT=$PORT",
     "cy:version": "cypress version",
     "test": "start-server-and-test start http://localhost:$PORT cy:run"
