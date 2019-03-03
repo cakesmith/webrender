@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "./webrender",
-    "cy:run": "cypress run",
+    "cy:run": "cypress run --env PORT=$PORT",
     "cy:version": "cypress version",
     "test": "start-server-and-test start http://localhost:$PORT cy:run"
   },
