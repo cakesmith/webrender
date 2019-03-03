@@ -2,9 +2,10 @@
 # runner instead of the slow VM-based runner.
 sudo: false
 
-matrix:
+jobs:
   include:
 
+    - stage: build
     - language: go
       go:
         1.11.x
@@ -12,7 +13,7 @@ matrix:
         - go test -v
         - go build
 
-
+    - stage: test
     - language: node_js
       node_js:
         - 10
@@ -24,4 +25,4 @@ matrix:
       install:
         - npm ci
       script:
-        - $(npm bin) test
+        - npm test
