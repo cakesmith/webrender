@@ -15,7 +15,7 @@ install:
 script:
   - go get ./...
   - go build
-  - go test -v
+  - go test ./... -v
   - npm test
 cache:
   npm: true # this cashes ~/.npm folder on Travis
