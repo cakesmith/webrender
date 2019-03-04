@@ -6,8 +6,7 @@ go:
   1.11.x
 sudo: false
 env:
-  - NODE_VERSION="10.15"
-  - PORT=8080
+  - NODE_VERSION="10.15" PORT=8080
 
 before_install:
   - nvm install $NODE_VERSION
