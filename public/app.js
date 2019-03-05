@@ -5,7 +5,9 @@ document.addEventListener("DOMContentLoaded", function() {
     var ws = null;
     var ctx = document.getElementById('screen').getContext('2d');
 
-    ws = new WebSocket("ws:/" + location.host + "/ws");
+    var proto = location.protocol === "http" ? "ws" : "wss";
+
+    ws = new WebSocket(proto + "://" + location.host + "/ws");
 
     ws.onopen = function(){
         console.log('connected!');

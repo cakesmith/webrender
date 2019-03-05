@@ -49,7 +49,6 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("public/")))
 	http.HandleFunc("/ws", hub.Handler())
 
-
 	logrus.WithField("port", port).Info("ready")
 
 	err = http.ListenAndServe(":"+port, nil)
