@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/Sirupsen/logrus"
+	"github.com/cakesmith/webrender/websocket"
 	"net/http"
 	"os"
 )
@@ -10,9 +11,6 @@ var (
 	log = logrus.New()
 )
 
-func handleHello(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("This is where the websocket connects."))
-}
 
 func main() {
 
@@ -21,9 +19,12 @@ func main() {
 		log.WithField("PORT", port).Fatal("$PORT must be set")
 	}
 
-
+	hub, err := websocket.NewHub()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.Handle("/", http.FileServer(http.Dir("public/app")))
-	http.HandleFunc("/ws", handleHello)
+	http.HandleFunc("/ws", websocket.Handler(hub))
 	log.Println(http.ListenAndServe(":"+port, nil))
 }

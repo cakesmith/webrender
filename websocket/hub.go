@@ -5,9 +5,8 @@
 package websocket
 
 import (
-	"context"
 	"github.com/Sirupsen/logrus"
-	"net"
+	"github.com/cakesmith/webrender/os"
 	"net/http"
 	"net/url"
 	"strings"
@@ -18,18 +17,11 @@ var (
 	log = logrus.WithField("cmd", "websocket")
 )
 
-
 // hub maintains the set of active clients and broadcasts messages to the
 // clients.
 
 type Hub struct {
 	sync.Mutex
-
-	started bool
-
-	server *http.Server
-
-	addr string
 
 	//queue of waiting tests
 	waiting map[string]chan *Client
@@ -52,25 +44,14 @@ type Message struct {
 	To   []*Client
 }
 
-func (hub *Hub) Addr() string {
-	if hub.addr != "" {
-		return hub.addr
-	}
-	return ""
-}
-
 func (hub *Hub) Close() error {
-	hub.started = false
 	for client := range hub.clients {
 		client.Close()
-	}
-	if hub.server != nil {
-		return hub.server.Shutdown(context.Background())
 	}
 	return nil
 }
 
-func NewHub(addr string) (*Hub, error) {
+func NewHub() (*Hub, error) {
 
 	hub := &Hub{
 		Send:       make(chan *Message),
@@ -82,37 +63,11 @@ func NewHub(addr string) (*Hub, error) {
 
 	go hub.run()
 
-	listener, err := net.Listen("tcp", addr)
-	if err != nil {
-		return nil, err
-	}
-
-	hub.addr = listener.Addr().String()
-
-	hub.server = &http.Server{
-		Handler: handler(hub),
-	}
-
-	go func() {
-		err := hub.server.Serve(listener)
-		if err != http.ErrServerClosed {
-			log.WithFields(logrus.Fields{"err": err}).Fatal("error in http.Serve")
-		} else {
-			log.WithField("info", err).Info("closing server")
-		}
-	}()
-
-	hub.started = true
-
 	return hub, nil
 }
 
-func (hub *Hub) Started() bool {
-	return hub.started
-}
-
-func handler(hub *Hub) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func Handler(hub *Hub) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 
 		unescaped, err := url.PathUnescape(r.URL.String())
 		if err != nil {
@@ -147,7 +102,7 @@ func handler(hub *Hub) http.Handler {
 
 		hub.register <- client
 
-	})
+	}
 }
 
 func (hub *Hub) run() {
@@ -174,6 +129,17 @@ func (hub *Hub) run() {
 			hub.Unlock()
 
 			log.WithFields(logrus.Fields{"client": client.Id, "addr": client.conn.RemoteAddr()}).Info("registered")
+
+			d := os.DisplayWriter{
+				Writer: client,
+			}
+
+			for x := 0; x < 256; x++ {
+				go d.DrawPixel(x, x, os.ColorBlack)
+				go d.DrawPixel(256-x, x, os.ColorBlack)
+			}
+
+
 
 		//Unregister a client
 		case client := <-hub.unregister:

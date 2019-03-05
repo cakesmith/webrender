@@ -57,7 +57,7 @@ func (c *Client) Write(p []byte) (int, error) {
 
 func (c *Client) Close() error {
 	c.hub.unregister <- c
-	return nil
+	return c.conn.Close()
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -67,11 +67,11 @@ func (c *Client) Close() error {
 // reads from this goroutine.
 func (c *Client) readPump() {
 
-	defer c.conn.Close()
+	defer c.Close()
 
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	c.conn.SetPongHandler(func(string) error { return c.conn.SetReadDeadline(time.Now().Add(pongWait)) })
 
 	log.WithFields(logrus.Fields{
 		"readLimit": maxMessageSize,
@@ -83,7 +83,9 @@ func (c *Client) readPump() {
 
 			_, reader, err := c.conn.NextReader()
 			if err != nil {
-				log.Error(errors.Wrap(err, "error getting next reader"))
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+					log.Error(errors.Wrap(err, "error getting next reader"))
+				}
 				return
 			}
 
@@ -92,7 +94,6 @@ func (c *Client) readPump() {
 				log.Error(errors.Wrap(err, "connection read error"))
 				return
 			}
-
 			//message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 			log.WithFields(logrus.Fields{"client": c.Id, "msg": string(message)}).Info("received")
 		}
@@ -110,7 +111,7 @@ func (c *Client) writePump() {
 
 	defer func() {
 		ticker.Stop()
-		c.conn.Close()
+		c.Close()
 	}()
 
 	for {
@@ -129,7 +130,7 @@ func (c *Client) writePump() {
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 
 			if err != nil {
-				if websocket.IsUnexpectedCloseError(err, 1000) {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
 					log.Error(errors.Wrap(err, "error getting next writer"))
 				}
 				return
@@ -146,7 +147,6 @@ func (c *Client) writePump() {
 				log.Error(errors.Wrap(err, "error closing websocket writer"))
 				return
 			}
-
 
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
