@@ -18,7 +18,7 @@ func TestDisplayWriter_Send(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := "d 100 200 " + ColorBlack.String()
+	expected := "r 100 200 1 1 " + ColorBlack.String()
 
 	if expected != buf.String() {
 		t.Errorf("expected %v, received %v", expected, buf.String())
@@ -39,7 +39,7 @@ func TestDisplayWriter_Send(t *testing.T) {
 
 	err = display.DrawPixel(100, 200, ColorWhite)
 
-	expected = "d 100 200 " + ColorWhite.String()
+	expected = "r 100 200 1 1 " + ColorWhite.String()
 
 	if expected != buf.String() {
 		t.Errorf("expected %v, received %v", expected, buf.String())
