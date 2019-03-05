@@ -7,7 +7,6 @@ import (
 	"io"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 var (
@@ -37,8 +36,6 @@ func (p Pixel) String() string {
 }
 
 type DisplayWriter struct {
-	sync.Mutex
-	memo map[string]bool
 	io.Writer
 }
 
@@ -66,31 +63,6 @@ func (display *DisplayWriter) DrawRectangle(x1, y1, w, h int, color Pixel) error
 }
 
 func (display *DisplayWriter) DrawPixel(x, y int, pixel Pixel) error {
-
-	log.WithFields(logrus.Fields{"x": x, "y": y, "pixel": pixel}).Debug("drawing pixel")
-
-	sx := strconv.Itoa(x)
-	sy := strconv.Itoa(y)
-	sp := pixel.String()
-
-	key := strings.Join([]string{sx, sy, sp}, ",")
-
-	display.Lock()
-
-	if display.memo == nil {
-		display.memo = make(map[string]bool)
-	}
-
-	m := display.memo[key]
-
-	if !m {
-		display.memo[key] = true
-		display.Unlock()
-		return display.DrawRectangle(x, y, 1, 1, pixel)
-	}
-
-	display.Unlock()
-	return nil
-
+	return display.DrawRectangle(x, y, 1, 1, pixel)
 }
 
