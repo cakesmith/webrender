@@ -32,17 +32,16 @@ func main() {
 			Writer: client,
 		}
 
-		for y := 11; y < height; y = y + 11 {
-			for x := 0; x < width; x++ {
-				go d.DrawPixel(x, y, system.ColorBlack)
-			}
-		}
+		d.DrawRectangle(0, 0, width, height, system.ColorBlack)
 
-		for x := 8; x < width; x = x + 8 {
-			for y := 0; y < height; y++ {
-				go d.DrawPixel(x, y, system.ColorBlack)
+
+			for x := 8; x < width; x = x + 8 {
+				go d.DrawRectangle(x, 0, 1, height, system.ColorWhite)
 			}
-		}
+
+			for y := 11; y < height; y = y + 11 {
+				go d.DrawRectangle(0, y, width, 1, system.ColorWhite)
+			}
 
 	}
 

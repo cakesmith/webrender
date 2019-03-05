@@ -51,6 +51,20 @@ func (display *DisplayWriter) Send(command Command, params ...string) error {
 	return err
 }
 
+
+
+func (display *DisplayWriter) DrawRectangle(x1, y1, w, h int, color Pixel) error {
+
+	sx1 := strconv.Itoa(x1)
+	sy1 := strconv.Itoa(y1)
+	sw := strconv.Itoa(w)
+	sh := strconv.Itoa(h)
+	sc := color.String()
+
+	return display.Send("r", sx1, sy1, sw, sh, sc)
+
+}
+
 func (display *DisplayWriter) DrawPixel(x, y int, pixel Pixel) error {
 
 	log.WithFields(logrus.Fields{"x": x, "y": y, "pixel": pixel}).Debug("drawing pixel")
@@ -72,7 +86,7 @@ func (display *DisplayWriter) DrawPixel(x, y int, pixel Pixel) error {
 	if !m {
 		display.memo[key] = true
 		display.Unlock()
-		return display.Send("d", sx, sy, sp)
+		return display.DrawRectangle(x, y, 1, 1, pixel)
 	}
 
 	display.Unlock()

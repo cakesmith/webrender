@@ -8,6 +8,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -140,9 +141,17 @@ func (c *Client) writePump() {
 
 			log.WithField("msg", string(message)).Trace("writing")
 
+
 			if _, err := w.Write(message); err != nil {
 				log.Error(errors.Wrap(err, "error writing"))
 				return
+			}
+
+			// Add queued messages to the current websocket message.
+			n := len(c.send)
+			for i := 0; i < n; i++ {
+				w.Write(newline)
+				w.Write(<-c.send)
 			}
 
 			if err := w.Close(); err != nil {
@@ -153,7 +162,9 @@ func (c *Client) writePump() {
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Error(errors.Wrap(err,"error sending ping"))
+				if !strings.Contains(err.Error(), "use of closed network connection") {
+					log.Error(errors.Wrap(err, "error sending ping"))
+				}
 				return
 			}
 		}

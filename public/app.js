@@ -1,3 +1,31 @@
+function styleFrom(rgb) {
+ return "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
+}
+
+
+function processCommand(ctx, data) {
+
+    let fields = data.split(" ");
+    let command = fields[0];
+
+    switch(command) {
+
+        case "r":
+
+            let x1 = fields[1];
+            let y1 = fields[2];
+            let w = fields[3];
+            let h = fields[4];
+
+            ctx.fillStyle = styleFrom(fields[5].split('-'));
+
+            ctx.fillRect(x1, y1, w, h);
+
+            break;
+
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
 
     'use strict';
@@ -5,45 +33,22 @@ document.addEventListener("DOMContentLoaded", function() {
     var ws = null;
     var ctx = document.getElementById('screen').getContext('2d');
 
-    var proto = location.protocol === "http" ? "ws" : "wss";
+    var proto = location.protocol === "http:" ? "ws:" : "wss:";
 
-    ws = new WebSocket(proto + "://" + location.host + "/ws");
+    ws = new WebSocket(proto + "//" + location.host + "/ws");
 
     ws.onopen = function(){
         console.log('connected!');
     };
 
     ws.onmessage = function(e){
-        let fields = e.data.split(" ");
-        let command = fields[0];
 
-        switch(command) {
+        let commands = e.data.split('\n');
 
-            case "d":
+        commands.forEach(function(data) {
+            processCommand(ctx, data)
+        })
 
-                let x = parseInt(fields[1]);
-                let y = parseInt(fields[2]);
-                let rgb = fields[3].split("-");
-
-                ctx.fillStyle = "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
-
-                ctx.fillRect( x, y, 1, 1 );
-
-                break;
-
-            case "r":
-
-                let height = fields[1];
-                let width = fields[2];
-
-                let screen = document.getElementById('screen')
-                screen.setAttribute("height", height);
-                screen.setAttribute("width", width);
-                ctx = screen.getContext('2d');
-
-                break;
-
-        }
     };
     ws.onclose = function(){
         console.log('closed!');
