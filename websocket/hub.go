@@ -6,7 +6,6 @@ package websocket
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/cakesmith/webrender/os"
 	"net/http"
 	"net/url"
 	"strings"
@@ -31,6 +30,8 @@ type Hub struct {
 
 	// Send message to clients.
 	Send chan *Message
+
+	OnRegister func(*Client)
 
 	// Register requests from the clients.
 	register chan *Client
@@ -66,7 +67,7 @@ func NewHub() (*Hub, error) {
 	return hub, nil
 }
 
-func Handler(hub *Hub) func(w http.ResponseWriter, r *http.Request) {
+func (hub *Hub) Handler() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		unescaped, err := url.PathUnescape(r.URL.String())
@@ -130,14 +131,11 @@ func (hub *Hub) run() {
 
 			log.WithFields(logrus.Fields{"client": client.Id, "addr": client.conn.RemoteAddr()}).Info("registered")
 
-			d := os.DisplayWriter{
-				Writer: client,
+			if hub.OnRegister != nil {
+				go hub.OnRegister(client)
 			}
 
-			for x := 0; x < 256; x++ {
-				go d.DrawPixel(x, x, os.ColorBlack)
-				go d.DrawPixel(256-x, x, os.ColorBlack)
-			}
+
 
 
 

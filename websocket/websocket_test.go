@@ -3,6 +3,8 @@ package websocket_test
 import (
 	"github.com/cakesmith/webrender/websocket"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"sync"
 	"testing"
 )
@@ -13,27 +15,23 @@ func TestWebsocket(t *testing.T) {
 	message := "hello, websocket!"
 	clientId := "client 1"
 
-	hub, err := websocket.NewHub("localhost:0")
+
+	hub, err := websocket.NewHub()
 	if err != nil {
 		t.Error(err)
 	}
-	if !hub.Started() {
-		t.Error("hub.Started() should be true")
-	}
+
+	server := httptest.NewServer(http.HandlerFunc(hub.Handler()))
 
 	defer func() {
+		server.Close()
 		err := hub.Close()
 		if err != nil {
 			t.Error("error closing hub: " + err.Error())
 		}
-		if hub.Started() {
-			t.Error("hub.Started() should be false")
-		}
+
 	}()
 
-	if !hub.Started() {
-		t.Error("hub.Started() should be true")
-	}
 	arrival := hub.Subscribe(clientId)
 
 	var wg sync.WaitGroup
@@ -63,7 +61,7 @@ func TestWebsocket(t *testing.T) {
 	}()
 
 	go func() {
-		err := remote.Start(hub.Addr(), clientId)
+		err := remote.Start(server.URL[7:], clientId)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -72,7 +70,5 @@ func TestWebsocket(t *testing.T) {
 	wg.Wait()
 
 	remote.Close()
-
-	hub.Close()
 
 }

@@ -15,6 +15,12 @@
 			"revisionTime": "2018-02-19T07:06:29Z"
 		},
 		{
+			"checksumSHA1": "I7hloldMJZTqUx6hbVDp5nk9fZQ=",
+			"path": "github.com/pkg/errors",
+			"revision": "856c240a51a2bf8fb8269ea7f3f9b046aadde36e",
+			"revisionTime": "2019-02-17T22:52:12Z"
+		},
+		{
 			"checksumSHA1": "CVmt+DETeuUZkKC6MUJbTqc/iYU=",
 			"path": "golang.org/x/crypto/ssh/terminal",
 			"revision": "74369b46fc6756741c016591724fd1cb8e26845f",
