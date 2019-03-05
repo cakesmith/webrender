@@ -109,6 +109,8 @@ func (c *Client) writePump() {
 
 	ticker := time.NewTicker(pingPeriod)
 
+	log.WithField("pingPeriod", pingPeriod).Info("starting write pump")
+
 	defer func() {
 		ticker.Stop()
 		c.Close()
@@ -136,7 +138,7 @@ func (c *Client) writePump() {
 				return
 			}
 
-			log.WithField("msg", string(message)).Info("writing")
+			log.WithField("msg", string(message)).Trace("writing")
 
 			if _, err := w.Write(message); err != nil {
 				log.Error(errors.Wrap(err, "error writing"))

@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	log = logrus.WithField("cmd", "websocket")
+	log = logrus.WithField("cmd", "hub")
 )
 
 // hub maintains the set of active clients and broadcasts messages to the
@@ -134,9 +134,6 @@ func (hub *Hub) run() {
 			if hub.OnRegister != nil {
 				go hub.OnRegister(client)
 			}
-
-
-
 
 
 		//Unregister a client
