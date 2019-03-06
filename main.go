@@ -29,25 +29,17 @@ func main() {
 
 	hub.OnRegister = func(client *websocket.Client) {
 
-		d := display.Terminal{client}
+		d := display.Terminal{
+			Writer: client,
+			Width: width,
+			Height: height,
+		}
 
-		d.DrawRectangle(0, 0, width, height, display.ColorBackground)
+		d.Clear(display.ColorBackground)
 
-		//for x := 8; x < width; x = x + 8 {
-		//	d.DrawVert(x, 0, height, display.ColorTerminalGreen)
-		//}
-		//
-		//for y := 11; y < height; y = y + 11 {
-		//	d.DrawHoriz(0, width, y, display.ColorTerminalGreen)
-		//}
+		d.CharGrid(8, 11, display.ColorTerminalGreen)
 
-		d.DrawLine(20, 100, 50, 60, display.ColorWhite)
-
-		d.DrawCircle(width/2, height/2, 100, display.ColorTerminalGreen)
-
-		d.DrawCircle(width/2, height/2, 99, display.ColorBackground)
-
-		d.DrawPixel(width/2, height/2, display.ColorBlack)
+		d.TestPattern()
 
 	}
 
