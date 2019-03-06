@@ -17,7 +17,9 @@ func Test_DrawPixel(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 
-	display := Terminal{buf}
+	display := Terminal{
+		Writer: buf,
+	}
 
 	err := display.DrawPixel(100, 200, ColorBlack)
 	if err != nil {
