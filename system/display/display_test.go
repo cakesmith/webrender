@@ -1,4 +1,4 @@
-package system
+package display
 
 import (
 	"bytes"
@@ -9,9 +9,7 @@ func TestDisplayWriter_DrawPixel(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 
-	display := DisplayWriter{
-		Writer: buf,
-	}
+	display := Terminal{buf}
 
 	err := display.DrawPixel(100, 200, ColorBlack)
 	if err != nil {

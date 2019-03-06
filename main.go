@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/cakesmith/webrender/system"
+	"github.com/cakesmith/webrender/system/display"
 	"github.com/cakesmith/webrender/websocket"
 	"net/http"
 	"os"
@@ -19,7 +19,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		log.WithField("PORT", port).Fatal("$PORT must be set")
+		log.Fatal("$PORT environment variable must be set")
 	}
 
 	hub, err := websocket.NewHub()
@@ -28,19 +28,20 @@ func main() {
 	}
 
 	hub.OnRegister = func(client *websocket.Client) {
-		d := system.DisplayWriter{
-			Writer: client,
-		}
 
-		d.DrawRectangle(0, 0, width, height, system.ColorBackground)
+		d := display.Terminal{client}
 
-		for x := 8; x < width; x = x + 8 {
-			go d.DrawVert(x, 0, height, system.ColorTerminalGreen)
-		}
+		d.DrawRectangle(0, 0, width, height, display.ColorBackground)
 
-		for y := 11; y < height; y = y + 11 {
-			go d.DrawHoriz(y, 0, width, system.ColorTerminalGreen)
-		}
+		//for x := 8; x < width; x = x + 8 {
+		//	go d.DrawVert(x, 0, height, display.ColorTerminalGreen)
+		//}
+		//
+		//for y := 11; y < height; y = y + 11 {
+		//	go d.DrawHoriz(0, width, y, display.ColorTerminalGreen)
+		//}
+		//
+		//go d.DrawLine(20, 100, 50, 60, display.ColorWhite)
 
 	}
 
