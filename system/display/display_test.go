@@ -5,7 +5,15 @@ import (
 	"testing"
 )
 
-func TestDisplayWriter_DrawPixel(t *testing.T) {
+func Test_MakePacket(t *testing.T) {
+	
+}
+
+func Test_Send(t *testing.T) {
+	
+}
+
+func Test_DrawPixel(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 
@@ -36,4 +44,28 @@ func TestDisplayWriter_DrawPixel(t *testing.T) {
 	}
 
 
+}
+
+func Test_DrawVert(t *testing.T) {
+	
+}
+
+func Test_DrawHoriz(t *testing.T) {
+	
+}
+
+func Test_DrawLine(t *testing.T) {
+	
+}
+
+func TestAbs(t *testing.T) {
+	
+}
+
+func TestSqrt(t *testing.T) {
+	
+}
+
+func TestDrawCircle(t *testing.T) {
+	
 }

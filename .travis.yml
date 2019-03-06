@@ -12,9 +12,9 @@ before_install:
   - nvm install $NODE_VERSION
 install:
   - npm ci
-script:
   - go get ./...
   - go build
+script:
   - go test ./... -v
   - npm test
 cache:

@@ -34,14 +34,20 @@ func main() {
 		d.DrawRectangle(0, 0, width, height, display.ColorBackground)
 
 		//for x := 8; x < width; x = x + 8 {
-		//	go d.DrawVert(x, 0, height, display.ColorTerminalGreen)
+		//	d.DrawVert(x, 0, height, display.ColorTerminalGreen)
 		//}
 		//
 		//for y := 11; y < height; y = y + 11 {
-		//	go d.DrawHoriz(0, width, y, display.ColorTerminalGreen)
+		//	d.DrawHoriz(0, width, y, display.ColorTerminalGreen)
 		//}
-		//
-		//go d.DrawLine(20, 100, 50, 60, display.ColorWhite)
+
+		d.DrawLine(20, 100, 50, 60, display.ColorWhite)
+
+		d.DrawCircle(width/2, height/2, 100, display.ColorTerminalGreen)
+
+		d.DrawCircle(width/2, height/2, 99, display.ColorBackground)
+
+		d.DrawPixel(width/2, height/2, display.ColorBlack)
 
 	}
 
