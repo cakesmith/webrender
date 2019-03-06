@@ -24,6 +24,7 @@
     "npm-run-all": "^4.1.2"
   },
   "devDependencies": {
+    "blink-diff": "^1.0.13",
     "cypress": "^3.1.5",
     "start-server-and-test": "^1.7.11"
   }

@@ -15,23 +15,32 @@ var (
 
 type Command string
 
-type Pixel struct {
+type Color struct {
 	R int
 	G int
 	B int
 }
 
 var (
-	ColorBlack = Pixel{
+
+	ColorBackground = Color{
+		40, 40, 40,
+	}
+
+	ColorTerminalGreen = Color{
+		51, 255, 51,
+	}
+
+	ColorBlack = Color{
 		0,0,0,
 	}
 
-	ColorWhite = Pixel{
+	ColorWhite = Color{
 		255,255,255,
 	}
 )
 
-func (p Pixel) String() string {
+func (p Color) String() string {
 	return fmt.Sprintf("%v-%v-%v", p.R, p.G, p.B)
 }
 
@@ -48,9 +57,17 @@ func (display *DisplayWriter) Send(command Command, params ...string) error {
 	return err
 }
 
+func (display *DisplayWriter) DrawVert(x, y1, y2 int, color Color) error {
+	return display.DrawRectangle(x, y1, 1, y2-y1, color)
+}
+
+func (display *DisplayWriter) DrawHoriz(y, x1, x2 int, color Color) error {
+	return display.DrawRectangle(x1, y, x2-x1, 1, color)
+}
 
 
-func (display *DisplayWriter) DrawRectangle(x1, y1, w, h int, color Pixel) error {
+
+func (display *DisplayWriter) DrawRectangle(x1, y1, w, h int, color Color) error {
 
 	sx1 := strconv.Itoa(x1)
 	sy1 := strconv.Itoa(y1)
@@ -62,7 +79,7 @@ func (display *DisplayWriter) DrawRectangle(x1, y1, w, h int, color Pixel) error
 
 }
 
-func (display *DisplayWriter) DrawPixel(x, y int, pixel Pixel) error {
-	return display.DrawRectangle(x, y, 1, 1, pixel)
+func (display *DisplayWriter) DrawPixel(x, y int, color Color) error {
+	return display.DrawRectangle(x, y, 1, 1, color)
 }
 
