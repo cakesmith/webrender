@@ -61,6 +61,12 @@ document.addEventListener("DOMContentLoaded", function() {
         ws.send("mc " + e.button + " " + e.offsetX + " " + e.offsetY)
     });
 
+    let full = document.getElementById("full");
+
+    full.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    });
+
     screen.addEventListener('touchmove', function(e) {
        e.preventDefault();
     });
@@ -68,6 +74,6 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('touchmove', function(e) {
         e.preventDefault()
     });
-    
+
 
 });
