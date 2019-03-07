@@ -9,9 +9,9 @@ import (
 )
 
 type Remote struct {
-	OnRead    func(n int, message []byte, err error) error
-	write     chan []byte
-	cleanup   chan struct{}
+	OnRead  func(n int, message []byte, err error) error
+	write   chan []byte
+	cleanup chan struct{}
 }
 
 func (client *Remote) Write(p []byte) (int, error) {
@@ -107,4 +107,3 @@ func (client *Remote) Start(addr string, id string) error {
 
 	return nil
 }
-

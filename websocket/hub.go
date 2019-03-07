@@ -135,7 +135,6 @@ func (hub *Hub) run() {
 				go hub.OnRegister(client)
 			}
 
-
 		//Unregister a client
 		case client := <-hub.unregister:
 			if _, ok := hub.clients[client]; ok {

@@ -14,7 +14,6 @@ var (
 	log = logrus.New()
 )
 
-
 type Color struct {
 	R int
 	G int
@@ -22,7 +21,6 @@ type Color struct {
 }
 
 var (
-
 	ColorBackground = Color{
 		40, 40, 40,
 	}
@@ -32,11 +30,11 @@ var (
 	}
 
 	ColorBlack = Color{
-		0,0,0,
+		0, 0, 0,
 	}
 
 	ColorWhite = Color{
-		255,255,255,
+		255, 255, 255,
 	}
 )
 
@@ -50,7 +48,7 @@ type Terminal struct {
 }
 
 type Command struct {
-	Name string
+	Name   string
 	Params []string
 }
 
@@ -81,7 +79,6 @@ func (t *Terminal) DrawRectangle(x1, y1, w, h int, color Color) error {
 			sx1, sy1, sw, sh, sc,
 		},
 	})
-
 
 }
 
@@ -172,12 +169,12 @@ func (t *Terminal) DrawLine(x1, y1, x2, y2 int, color Color) error {
 		}
 
 		if adyMinusbdx < 0 {
-			 a = a+1
-			 adyMinusbdx = adyMinusbdx + dy
+			a = a + 1
+			adyMinusbdx = adyMinusbdx + dy
 
 		} else {
-			 b = b+1
-			 adyMinusbdx = adyMinusbdx - dx
+			b = b + 1
+			adyMinusbdx = adyMinusbdx - dx
 		}
 
 	}
@@ -217,6 +214,11 @@ func (t *Terminal) TestPattern() error {
 		return err
 	}
 
+	err = t.DrawVert(t.Width/2, t.Height, t.Height/2, ColorWhite)
+	if err != nil {
+		return err
+	}
+
 	return t.DrawPixel(t.Width/2, t.Height/2, ColorBlack)
 
 }
@@ -227,7 +229,7 @@ func (t *Terminal) Clear(color Color) error {
 }
 
 func (t *Terminal) CharGrid(charWidth, charHeight int, color Color) error {
-	
+
 	for x := charWidth; x < t.Width; x = x + charWidth {
 		err := t.DrawVert(x, 0, t.Height, color)
 		if err != nil {
@@ -264,7 +266,7 @@ func (t *Terminal) DrawCircle(cx, cy, r int, color Color) error {
 
 	for dy := -r; (dy - 1) < r; dy++ {
 
-		z := Sqrt((r*r) - (dy*dy))
+		z := Sqrt((r * r) - (dy * dy))
 
 		err := t.DrawLine(cx-z, cy+dy, cx+z, cy+dy, color)
 		if err != nil {
@@ -275,5 +277,3 @@ func (t *Terminal) DrawCircle(cx, cy, r int, color Color) error {
 
 	return nil
 }
-
-

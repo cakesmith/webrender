@@ -9,12 +9,10 @@ import (
 	"testing"
 )
 
-
 func TestWebsocket(t *testing.T) {
 
 	message := "hello, websocket!"
 	clientId := "client 1"
-
 
 	hub, err := websocket.NewHub()
 	if err != nil {

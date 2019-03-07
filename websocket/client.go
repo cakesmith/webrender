@@ -141,7 +141,6 @@ func (c *Client) writePump() {
 
 			log.WithField("msg", string(message)).Trace("writing")
 
-
 			if _, err := w.Write(message); err != nil {
 				log.Error(errors.Wrap(err, "error writing"))
 				return

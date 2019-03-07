@@ -9,11 +9,10 @@ import (
 )
 
 var (
-	log = logrus.New()
-	width = 512
+	log    = logrus.New()
+	width  = 512
 	height = 330
 )
-
 
 func main() {
 
@@ -31,7 +30,7 @@ func main() {
 
 		d := display.Terminal{
 			Writer: client,
-			Width: width,
+			Width:  width,
 			Height: height,
 		}
 
@@ -52,6 +51,5 @@ func main() {
 	if err != nil {
 		logrus.Error(err)
 	}
-
 
 }
