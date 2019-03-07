@@ -30,12 +30,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
     'use strict';
 
-    var ws = null;
-    var ctx = document.getElementById('screen').getContext('2d');
+    document.body.addEventListener('touchmove', function(e) {
+        e.preventDefault()
+    });
 
-    var proto = location.protocol === "http:" ? "ws:" : "wss:";
 
-    ws = new WebSocket(proto + "//" + location.host + "/ws");
+    let screen = document.getElementById('screen');
+
+    let ctx = screen.getContext('2d');
+
+    let proto = location.protocol === "http:" ? "ws:" : "wss:";
+
+    let ws = new WebSocket(proto + "//" + location.host + "/ws");
 
     ws.onopen = function(){
         console.log('connected!');
@@ -55,6 +61,20 @@ document.addEventListener("DOMContentLoaded", function() {
         window.location.reload(true)
     };
 
+    screen.addEventListener('click', function(e) {
+        e.preventDefault();
+        ws.send("mc " + e.button + " " + e.offsetX + " " + e.offsetY)
+    });
+
+    screen.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        let rect = screen.getBoundingClientRect();
+        let x = event.clientX - rect.left;
+        let y = event.clientY - rect.top;
+        ws.send("tc " + x + " " + y)
+
+
+    });
 
 
 });
