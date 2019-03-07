@@ -33,8 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('touchmove', function(e) {
         e.preventDefault()
     });
-
-
+    
     let screen = document.getElementById('screen');
 
     let ctx = screen.getContext('2d');
@@ -67,13 +66,10 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     screen.addEventListener('touchstart', function(e) {
-        e.preventDefault();
         let rect = screen.getBoundingClientRect();
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
         ws.send("tc " + x + " " + y)
-
-
     });
 
 
