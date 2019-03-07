@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     screen.addEventListener('click', function(e) {
         e.preventDefault();
-        ws.send("mc " + e.button + " " + e.offsetX + " " + screen.height - e.offsetY)
+        ws.send("mc " + e.button + " " + e.offsetX + " " + (screen.height - e.offsetY))
     });
 
     let full = document.getElementById("full");
