@@ -2,5 +2,4 @@
 ### render images across the web
 https://webrender.herokuapp.com/ 
 
-[![Build Status](https://travis-ci.com/cakesmith/webrender.svg?token=fzDXGAzGTst3zxaHFLeF&branch=master)](https://travis-ci.com/cakesmith/webrender)
-
+[![Build Status](https://travis-ci.org/cakesmith/webrender.svg?branch=master)](https://travis-ci.org/cakesmith/webrender)
