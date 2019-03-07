@@ -67,6 +67,10 @@ func (t *Terminal) send(c Command) error {
 
 func (t *Terminal) DrawRectangle(x1, y1, w, h int, color Color) error {
 
+	// flip y axis for canvas orientation.
+	y1 = t.Height - y1
+	h = -h
+
 	sx1 := strconv.Itoa(x1)
 	sy1 := strconv.Itoa(y1)
 	sw := strconv.Itoa(w)

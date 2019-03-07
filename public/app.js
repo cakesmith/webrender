@@ -22,10 +22,6 @@ function processCommand(ctx, data) {
 
             ctx.fillStyle = styleFrom(fields[5].split('-'));
 
-            // flip y axis so (0,0) is bottom left
-            y = (screenHeight - y).toString();
-            h = -h;
-
             ctx.fillRect(x, y, w, h);
 
             break;
@@ -65,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     screen.addEventListener('click', function(e) {
         e.preventDefault();
-        ws.send("mc " + e.button + " " + e.offsetX + " " + screenHeight - e.offsetY)
+        ws.send("mc " + e.button + " " + e.offsetX + " " + e.offsetY)
     });
 
     let full = document.getElementById("full");

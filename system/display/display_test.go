@@ -26,7 +26,7 @@ func Test_DrawPixel(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := "r 100 200 1 1 " + ColorBlack.String()
+	expected := "r 100 -200 1 -1 " + ColorBlack.String()
 
 	if expected != buf.String() {
 		t.Errorf("expected %v, received %v", expected, buf.String())
@@ -39,7 +39,7 @@ func Test_DrawPixel(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected = "r 100 200 1 1 " + ColorWhite.String()
+	expected = "r 100 -200 1 -1 " + ColorWhite.String()
 
 	if expected != buf.String() {
 		t.Errorf("expected %v, received %v", expected, buf.String())
