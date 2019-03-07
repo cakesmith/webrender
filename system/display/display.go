@@ -83,10 +83,16 @@ func (t *Terminal) DrawRectangle(x1, y1, w, h int, color Color) error {
 }
 
 func (t *Terminal) DrawVert(x, y1, y2 int, color Color) error {
+	if y1 > y2 {
+		y2, y1 = y1, y2
+	}
 	return t.DrawRectangle(x, y1, 1, y2-y1, color)
 }
 
 func (t *Terminal) DrawHoriz(x1, x2, y int, color Color) error {
+	if x1 > x2 {
+		x2, x1 = x1, x2
+	}
 	return t.DrawRectangle(x1, y, x2-x1, 1, color)
 }
 

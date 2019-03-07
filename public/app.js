@@ -2,7 +2,6 @@ function styleFrom(rgb) {
  return "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
 }
 
-
 function processCommand(ctx, data) {
 
     let fields = data.split(" ");
@@ -12,14 +11,18 @@ function processCommand(ctx, data) {
 
         case "r":
 
-            let x1 = fields[1];
-            let y1 = fields[2];
+            let x = fields[1];
+            let y = fields[2];
             let w = fields[3];
             let h = fields[4];
 
             ctx.fillStyle = styleFrom(fields[5].split('-'));
 
-            ctx.fillRect(x1, y1, w, h);
+            // flip y axis so (0,0) is bottom left
+            y = (ctx.canvas.height - y).toString();
+            h = -h;
+            
+            ctx.fillRect(x, y, w, h);
 
             break;
 
