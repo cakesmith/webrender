@@ -4,8 +4,6 @@ function styleFrom(rgb) {
  return "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
 }
 
-let screenHeight;
-
 function processCommand(ctx, data) {
 
     let fields = data.split(" ");
@@ -33,8 +31,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let screen = document.getElementById('screen');
 
-    screenHeight = screen.height;
-
     let ctx = screen.getContext('2d');
 
     let proto = location.protocol === "http:" ? "ws:" : "wss:";
@@ -61,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     screen.addEventListener('click', function(e) {
         e.preventDefault();
-        ws.send("mc " + e.button + " " + e.offsetX + " " + e.offsetY)
+        ws.send("mc " + e.button + " " + e.offsetX + " " + screen.height - e.offsetY)
     });
 
     let full = document.getElementById("full");
