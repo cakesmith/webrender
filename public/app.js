@@ -1,6 +1,10 @@
+'use strict';
+
 function styleFrom(rgb) {
  return "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
 }
+
+let screenHeight;
 
 function processCommand(ctx, data) {
 
@@ -19,9 +23,9 @@ function processCommand(ctx, data) {
             ctx.fillStyle = styleFrom(fields[5].split('-'));
 
             // flip y axis so (0,0) is bottom left
-            y = (ctx.canvas.height - y).toString();
+            y = (screenHeight - y).toString();
             h = -h;
-            
+
             ctx.fillRect(x, y, w, h);
 
             break;
@@ -31,9 +35,9 @@ function processCommand(ctx, data) {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    'use strict';
-
     let screen = document.getElementById('screen');
+
+    screenHeight = screen.height
 
     let ctx = screen.getContext('2d');
 
