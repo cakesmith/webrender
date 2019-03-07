@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta charset="UTF-8" name="viewport" content="width=device-width">
+
     <title>webrender</title>
+
     <style>
-        @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: portrait) {
-            canvas {
+        @media screen and (orientation: portrait) {
+            #full {
                 transform: rotate(-90deg);
-                transform-origin: center;
+            }
+            canvas {
+                left: 50%;
+                transform: translateY(-50%) translateX(-50%) !important;
             }
         }
         #full {
-            position:fixed !important;
+            position:fixed;
             top:0;
             right:0;
             bottom:0;
@@ -27,11 +33,17 @@
             border: 1px solid #33FF33;
         }
     </style>
+
 </head>
+
 <body bgcolor="black">
-<div id="full">
-<canvas id="screen" width="512" height="330"></canvas>
-</div>
-<script src="app.js"></script>
+
+    <div id="full">
+        <canvas id="screen" width="512" height="330"></canvas>
+    </div>
+
+    <script src="app.js"></script>
+
 </body>
+
 </html>
