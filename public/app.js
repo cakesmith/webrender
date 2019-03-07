@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let screen = document.getElementById('screen');
 
-    screenHeight = screen.height
+    screenHeight = screen.height;
 
     let ctx = screen.getContext('2d');
 
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     screen.addEventListener('click', function(e) {
         e.preventDefault();
-        ws.send("mc " + e.button + " " + e.offsetX + " " + e.offsetY)
+        ws.send("mc " + e.button + " " + e.offsetX + " " + screenHeight - e.offsetY)
     });
 
     let full = document.getElementById("full");
