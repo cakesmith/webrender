@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('touchmove', function(e) {
         e.preventDefault()
     });
-    
+
     let screen = document.getElementById('screen');
 
     let ctx = screen.getContext('2d');
@@ -65,7 +65,25 @@ document.addEventListener("DOMContentLoaded", function() {
         ws.send("mc " + e.button + " " + e.offsetX + " " + e.offsetY)
     });
 
+        // var mylatesttap;
+
+    screen.addEventListener('touchmove', function(e) {
+       e.preventDefault();
+    });
+
     screen.addEventListener('touchstart', function(e) {
+
+        // var now = new Date().getTime();
+        // var timesince = now - mylatesttap;
+        //
+        // if((timesince < 600) && (timesince > 0)){
+        //     return
+        // }else{
+        //     e.preventDefault()
+        // }
+        //
+        // mylatesttap = new Date().getTime();
+
         let rect = screen.getBoundingClientRect();
         let x = e.clientX - rect.left;
         let y = e.clientY - rect.top;
