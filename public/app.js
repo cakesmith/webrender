@@ -68,13 +68,6 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('touchmove', function(e) {
         e.preventDefault()
     });
-
-    screen.addEventListener('touchstart', function(e) {
-
-        let rect = screen.getBoundingClientRect();
-        let x = e.touches[0].clientX - rect.left;
-        let y = e.touches[0].clientY - rect.top;
-        ws.send("tc " + x + " " + y)
-    });
+    
 
 });
