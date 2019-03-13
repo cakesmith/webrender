@@ -36,7 +36,7 @@ type bounds struct {
 
 func (g *grid) reset() {
 	g.bitmap = make(map[int]bool)
-	g.drawEmpty(d, display.ColorTerminalGreen)
+	g.draw(d, display.ColorTerminalGreen)
 }
 
 func (g *grid) String() string {
@@ -81,7 +81,7 @@ func (g *grid) which(mx, my int) (int, bounds) {
 	return -1, bounds{}
 }
 
-func (g *grid) drawEmpty(t *display.Terminal, color display.Color) error {
+func (g *grid) draw(t *display.Terminal, color display.Color) error {
 
 	//TODO quick and dirty, use charWidth and charHeight instead of 8 and 11
 
@@ -167,11 +167,7 @@ func main() {
 		width:  48,
 		height: 33,
 		border: display.ColorTerminalGreen,
-		color: display.Color{
-			R: 200,
-			G: 0,
-			B: 0,
-		},
+		color: display.ColorRed,
 	}
 
 	events := &websocket.Events{
@@ -179,6 +175,7 @@ func main() {
 		OnKeypress: func(key int) {
 
 			fmt.Printf("keypress: %v\n", key)
+			d.PrintChar(key)
 
 		},
 
@@ -232,11 +229,11 @@ func main() {
 
 	hub.OnRegister = func(client *websocket.Client) {
 
-		d = display.New(width, height, client)
+		d = display.New(width, height, charWidth, charHeight, client)
 
 		d.Clear(display.ColorBackground)
 
-		grid.drawEmpty(d, display.ColorTerminalGreen)
+		grid.draw(d, display.ColorTerminalGreen)
 
 		resetBtn.draw(d)
 
