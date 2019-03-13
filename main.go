@@ -1,24 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/cakesmith/webrender/system/display"
 	"github.com/cakesmith/webrender/websocket"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 )
 
 var (
 	log    = logrus.New()
 	width  = 512
 	height = 330
+	charWidth = 8
+	charHeight = 11
 )
 
 type charGrid struct {
 	bottomLeftX int
 	bottomLeftY int
-	width       int // in characters
-	height      int // in characters
 	grid        map[int]bool
 }
 
@@ -28,17 +31,42 @@ type bounds struct {
 	left, right, bottom, top int
 }
 
-func (chars charGrid) which(mx, my int) (int, bounds) {
-	for y := 0; y < chars.height; y++ {
-		for x := 0; x < chars.width; x++ {
+func (chars charGrid) String() string {
 
-			left := chars.bottomLeftX + (8 * x)
-			right := left + 8
-			bottom := chars.bottomLeftY + (11 * y)
-			top := bottom + 11
+	var n []string
+
+	for y := 0; y < charHeight; y++ {
+
+		var ch byte
+
+		for x := 0; x < charWidth; x ++ {
+
+			i := x + charWidth * y
+
+			if chars.grid[i] {
+				ch = ch | (1 << uint(x))
+			}
+
+		}
+
+		n = append(n, strconv.Itoa(int(ch)))
+	}
+
+	return strings.Join(n, ", ")
+}
+
+func (chars charGrid) which(mx, my int) (int, bounds) {
+
+	for y := 0; y < charHeight; y++ {
+		for x := 0; x < charWidth; x++ {
+
+			left := chars.bottomLeftX + (charWidth * x)
+			right := left + charWidth
+			bottom := chars.bottomLeftY + (charHeight * y)
+			top := bottom + charHeight
 
 			if mx > left && mx < right && my > bottom && my < top {
-				return x + (8 * y), bounds{left, right, bottom, top}
+				return x + (charWidth * y), bounds{left, right, bottom, top}
 			}
 		}
 	}
@@ -58,11 +86,9 @@ func main() {
 	}
 
 	chars := charGrid{
-		width:       8,
-		height:      11,
 		grid:        make(map[int]bool),
-		bottomLeftX: (28 * 8) + 1,
-		bottomLeftY: (10 * 11) + 1,
+		bottomLeftX: (28 * charWidth) + 1,
+		bottomLeftY: (10 * charHeight) + 1,
 	}
 
 	events := &websocket.Events{
@@ -70,27 +96,40 @@ func main() {
 		OnClick: func(btn, x, y int) {
 
 			w, b := chars.which(x, y)
+
 			if w != -1 {
+
 				chars.grid[w] = !chars.grid[w]
+
 				var color display.Color
+
 				if chars.grid[w] {
 					color = display.ColorTerminalGreen
 				} else {
 					color = display.ColorBackground
 				}
+
 				alt := display.ColorTerminalGreen
+
 				if alt == color {
 					alt = display.ColorBlack
 				}
-				d.DrawRectangle(b.left-1, b.bottom-1, 9, 12, alt)
-				d.DrawRectangle(b.left, b.bottom, 7, 10, color)
+
+				d.DrawRectangle(b.left-1, b.bottom-1, charWidth + 1, charHeight + 1, alt)
+				d.DrawRectangle(b.left, b.bottom, charWidth -1, charHeight - 1, color)
+
 				dx := chars.bottomLeftX - 1
 				dy := chars.bottomLeftY - 1
+				dbx := charWidth * charWidth + dx
+				dby := charHeight * charHeight + dy
 
-				d.DrawLine(dx, dy, dx, 11*11+dy, display.ColorTerminalGreen)
-				d.DrawLine(dx, dy, 8*8+dx, dy, display.ColorTerminalGreen)
-				d.DrawLine(8*8+dx, dy, 8*8+dx, 11*11+dy, display.ColorTerminalGreen)
-				d.DrawLine(dx, 11*11+dy, 8*8+dx, 11*11+dy, display.ColorTerminalGreen)
+				// fix border
+				d.DrawLine(dx, dy, dx, dby, display.ColorTerminalGreen)
+				d.DrawLine(dx, dy, dbx, dy, display.ColorTerminalGreen)
+				d.DrawLine(dbx, dy, dbx, dby, display.ColorTerminalGreen)
+				d.DrawLine(dx, dby, dbx, dby, display.ColorTerminalGreen)
+
+				fmt.Println(chars.String())
 
 			}
 
@@ -107,7 +146,7 @@ func main() {
 
 		d.Clear(display.ColorBackground)
 
-		d.CharGrid(8, 11, display.ColorTerminalGreen)
+		d.CharGrid(charWidth, charHeight, display.ColorTerminalGreen)
 
 	}
 
