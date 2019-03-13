@@ -9,6 +9,18 @@
 			"revisionTime": "2019-02-10T13:00:17Z"
 		},
 		{
+			"checksumSHA1": "HeKqIeE36Y4AFud4LKYhI4QmvRQ=",
+			"path": "github.com/goburrow/modbus",
+			"revision": "606c02f4eef527a1d4cf7d8733d5fd7ba34f91d8",
+			"revisionTime": "2018-09-19T09:23:05Z"
+		},
+		{
+			"checksumSHA1": "FMlkaoUxr43MDf79nbdjI44c7RI=",
+			"path": "github.com/goburrow/serial",
+			"revision": "5efbe925ecf714f8ba147bf2226f2e7afc7111bc",
+			"revisionTime": "2017-10-03T20:18:52Z"
+		},
+		{
 			"checksumSHA1": "qWSfv6nFxKXv9aIvOB/A+oJ47a8=",
 			"path": "github.com/gorilla/websocket",
 			"revision": "f37d1588608ec036fa9b0b7b8afbde47dc06aea9",

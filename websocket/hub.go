@@ -67,7 +67,11 @@ func NewHub() (*Hub, error) {
 	return hub, nil
 }
 
-func (hub *Hub) Handler() func(w http.ResponseWriter, r *http.Request) {
+type Events struct {
+	OnClick func(btn, x, y int)
+}
+
+func (hub *Hub) Handler(ev *Events) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		unescaped, err := url.PathUnescape(r.URL.String())
@@ -92,7 +96,7 @@ func (hub *Hub) Handler() func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusUpgradeRequired)
 		}
 
-		client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+		client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), Events: ev}
 
 		client.Id = split[0]
 

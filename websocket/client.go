@@ -8,6 +8,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"time"
 
@@ -49,6 +50,8 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	Events *Events
 }
 
 func (c *Client) Write(p []byte) (int, error) {
@@ -59,6 +62,37 @@ func (c *Client) Write(p []byte) (int, error) {
 func (c *Client) Close() error {
 	c.hub.unregister <- c
 	return c.conn.Close()
+}
+
+func (c *Client) dispatch(cmd []byte) {
+
+	split := strings.Split(string(cmd), " ")
+	if split[0] == "mc" {
+
+		btn, err := strconv.Atoi(string(split[1]))
+		if err != nil {
+			log.WithField("command", string(cmd)).Error(err)
+			return
+		}
+
+		x, err := strconv.Atoi(string(split[2]))
+		if err != nil {
+			log.WithField("command", string(cmd)).Error(err)
+			return
+		}
+
+		y, err := strconv.Atoi(string(split[3]))
+		if err != nil {
+			log.WithField("command", string(cmd)).Error(err)
+			return
+		}
+
+		if c.Events.OnClick != nil {
+			c.Events.OnClick(btn, x, y)
+		}
+
+	}
+
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -84,7 +118,7 @@ func (c *Client) readPump() {
 
 			_, reader, err := c.conn.NextReader()
 			if err != nil {
-				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
 					log.Error(errors.Wrap(err, "error getting next reader"))
 				}
 				return
@@ -97,6 +131,9 @@ func (c *Client) readPump() {
 			}
 			//message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 			log.WithFields(logrus.Fields{"client": c.Id, "msg": string(message)}).Info("received")
+
+			c.dispatch(message)
+
 		}
 	}
 }

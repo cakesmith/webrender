@@ -241,6 +241,9 @@ func (t *Terminal) Clear(color Color) error {
 func (t *Terminal) CharGrid(charWidth, charHeight int, color Color) error {
 
 	for x := charWidth; x < t.Width; x = x + charWidth {
+		if x < 28*8 || x > 36*8 {
+			continue
+		}
 		err := t.DrawVert(x, 0, t.Height, color)
 		if err != nil {
 			return err
@@ -248,11 +251,20 @@ func (t *Terminal) CharGrid(charWidth, charHeight int, color Color) error {
 	}
 
 	for y := charHeight; y < t.Height; y = y + charHeight {
+		if y < 10*11 || y > 21*11 {
+			continue
+		}
 		err := t.DrawHoriz(0, t.Width, y, color)
 		if err != nil {
 			return err
 		}
 	}
+
+	t.DrawRectangle(0, 0, t.Width, 11*10, ColorBackground)
+	t.DrawRectangle(0, t.Height, t.Width, (-11*9)+1, ColorBackground)
+	t.DrawRectangle(0, 0, 28*8, t.Height, ColorBackground)
+	t.DrawRectangle((36*8)+1, 0, t.Width-((36*8)+1), t.Height, ColorBackground)
+
 	return nil
 }
 
