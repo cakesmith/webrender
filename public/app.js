@@ -60,6 +60,11 @@ document.addEventListener("DOMContentLoaded", function() {
         ws.send("mc " + e.button + " " + e.offsetX + " " + (screen.height - e.offsetY))
     });
 
+    document.addEventListener('keydown', function(e) {
+        e.preventDefault();
+        ws.send("k " + e.keyCode)
+    });
+
     let full = document.getElementById("full");
 
     full.addEventListener('touchmove', function(e) {

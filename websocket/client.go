@@ -67,7 +67,21 @@ func (c *Client) Close() error {
 func (c *Client) dispatch(cmd []byte) {
 
 	split := strings.Split(string(cmd), " ")
-	if split[0] == "mc" {
+
+	switch split[0] {
+
+	// keypress
+	case "k":
+
+		k, err := strconv.Atoi(string(split[1]))
+		if err != nil {
+			log.WithField("command", string(cmd)).Error(err)
+			return
+		}
+		c.Events.OnKeypress(k)
+
+	// mouse click
+	case "mc":
 
 		btn, err := strconv.Atoi(string(split[1]))
 		if err != nil {

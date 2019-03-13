@@ -15,9 +15,9 @@ var (
 )
 
 type Color struct {
-	R int
-	G int
-	B int
+	R uint8
+	G uint8
+	B uint8
 }
 
 var (
@@ -44,12 +44,28 @@ func (p Color) String() string {
 
 type Terminal struct {
 	io.Writer
-	Width, Height int
+	Width, Height    int
+	cursorX, cursorY int
+	charMap          charMap
 }
 
 type Command struct {
 	Name   string
 	Params []string
+}
+
+func New(width, height int, writer io.Writer) *Terminal {
+
+	t := &Terminal{
+		writer,
+		width, height,
+		0, 0,
+		make(map[int]character),
+	}
+
+	t.charMap.init()
+
+	return t
 }
 
 func (c Command) makePacket() []byte {
@@ -238,36 +254,6 @@ func (t *Terminal) Clear(color Color) error {
 
 }
 
-func (t *Terminal) CharGrid(charWidth, charHeight int, color Color) error {
-
-	for x := charWidth; x < t.Width; x = x + charWidth {
-		if x < 28*8 || x > 36*8 {
-			continue
-		}
-		err := t.DrawVert(x, 0, t.Height, color)
-		if err != nil {
-			return err
-		}
-	}
-
-	for y := charHeight; y < t.Height; y = y + charHeight {
-		if y < 10*11 || y > 21*11 {
-			continue
-		}
-		err := t.DrawHoriz(0, t.Width, y, color)
-		if err != nil {
-			return err
-		}
-	}
-
-	t.DrawRectangle(0, 0, t.Width, 11*10, ColorBackground)
-	t.DrawRectangle(0, t.Height, t.Width, (-11*9)+1, ColorBackground)
-	t.DrawRectangle(0, 0, 28*8, t.Height, ColorBackground)
-	t.DrawRectangle((36*8)+1, 0, t.Width-((36*8)+1), t.Height, ColorBackground)
-
-	return nil
-}
-
 func Abs(x int) int {
 	if x < 0 {
 		return -x
@@ -298,4 +284,59 @@ func (t *Terminal) DrawCircle(cx, cy, r int, color Color) error {
 	}
 
 	return nil
+}
+
+type character map[int]int
+
+type charMap map[int]character
+
+func (ch charMap) init() {
+
+	log.Info("initializing character map...")
+
+	// Blank square for non printable characters
+	ch.add(0, 0, 0, 63, 63, 63, 63, 63, 63, 63, 63, 63)
+
+	// Assign bitmap for each character in set
+	ch.add(32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) //
+
+	ch.add(48, 0, 0, 12, 18, 33, 33, 45, 33, 33, 18, 12) // 0
+	ch.add(49, 0, 0, 31, 4, 4, 4, 4, 4, 5, 6, 4)         // 1
+	//ch.add(50,,,,,,,,,,,)
+	//ch.add(51,,,,,,,,,,,)
+	//ch.add(52,,,,,,,,,,,)
+	//ch.add(53,,,,,,,,,,,)
+	//ch.add(54,,,,,,,,,,,)
+	//ch.add(55,,,,,,,,,,,)
+	//ch.add(56,,,,,,,,,,,)
+	//ch.add(57,,,,,,,,,,,)
+
+}
+
+func (ch charMap) get(i int) character {
+	if i < 32 || i > 126 {
+		i = 0
+	}
+	return ch[i]
+}
+
+func (ch charMap) add(index int, v ...int) {
+
+	if len(v) < 11 {
+		log.Fatalf("cannot add character %v", index)
+	}
+
+	ch[index] = map[int]int{
+		0:  v[0],
+		1:  v[1],
+		2:  v[2],
+		3:  v[3],
+		4:  v[4],
+		5:  v[5],
+		6:  v[6],
+		7:  v[7],
+		8:  v[8],
+		9:  v[9],
+		10: v[10],
+	}
 }

@@ -12,26 +12,34 @@ import (
 )
 
 var (
-	log    = logrus.New()
+	log = logrus.New()
+
+	//TODO use html template to pass these values to index.html
 	width  = 512
 	height = 330
-	charWidth = 8
+
+	charWidth  = 8
 	charHeight = 11
+
+	d *display.Terminal
 )
 
-type charGrid struct {
+type grid struct {
 	bottomLeftX int
 	bottomLeftY int
-	grid        map[int]bool
+	bitmap      map[int]bool
 }
-
-var d display.Terminal
 
 type bounds struct {
 	left, right, bottom, top int
 }
 
-func (chars charGrid) String() string {
+func (g *grid) reset() {
+	g.bitmap = make(map[int]bool)
+	g.drawEmpty(d, display.ColorTerminalGreen)
+}
+
+func (g *grid) String() string {
 
 	var n []string
 
@@ -39,11 +47,11 @@ func (chars charGrid) String() string {
 
 		var ch byte
 
-		for x := 0; x < charWidth; x ++ {
+		for x := 0; x < charWidth; x++ {
 
-			i := x + charWidth * y
+			i := x + charWidth*y
 
-			if chars.grid[i] {
+			if g.bitmap[i] {
 				ch = ch | (1 << uint(x))
 			}
 
@@ -55,14 +63,14 @@ func (chars charGrid) String() string {
 	return strings.Join(n, ", ")
 }
 
-func (chars charGrid) which(mx, my int) (int, bounds) {
+func (g *grid) which(mx, my int) (int, bounds) {
 
 	for y := 0; y < charHeight; y++ {
 		for x := 0; x < charWidth; x++ {
 
-			left := chars.bottomLeftX + (charWidth * x)
+			left := g.bottomLeftX + (charWidth * x)
 			right := left + charWidth
-			bottom := chars.bottomLeftY + (charHeight * y)
+			bottom := g.bottomLeftY + (charHeight * y)
 			top := bottom + charHeight
 
 			if mx > left && mx < right && my > bottom && my < top {
@@ -71,6 +79,68 @@ func (chars charGrid) which(mx, my int) (int, bounds) {
 		}
 	}
 	return -1, bounds{}
+}
+
+func (g *grid) drawEmpty(t *display.Terminal, color display.Color) error {
+
+	//TODO quick and dirty, use charWidth and charHeight instead of 8 and 11
+
+	x1 := 28 * charWidth
+	y1 := 10 * charHeight
+	w1 := 36 * charWidth
+	h1 := 21 * charHeight
+
+	t.DrawRectangle(28*charWidth, 10*charHeight, 8*charWidth, 11*charHeight, display.ColorBackground)
+
+	for x := charWidth; x < t.Width; x = x + charWidth {
+		if x < 28*8 || x > 36*8 {
+			continue
+		}
+
+		err := t.DrawVert(x, y1, h1, color)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	for y := charHeight; y < t.Height; y = y + charHeight {
+		if y < 10*11 || y > 21*11 {
+			continue
+		}
+
+		err := t.DrawHoriz(x1, w1, y, color)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	//t.DrawRectangle(0, 0, t.Width, 11*10, display.ColorBackground)
+	//t.DrawRectangle(0, t.Height, t.Width, (-11*9)+1, display.ColorBackground)
+	//t.DrawRectangle(0, 0, 28*8, t.Height, display.ColorBackground)
+	//t.DrawRectangle((36*8)+1, 0, t.Width-((36*8)+1), t.Height, display.ColorBackground)
+
+	return nil
+}
+
+type button struct {
+	x, y, width, height int
+	color               display.Color
+	border              display.Color
+	text                string
+}
+
+func (b button) is(mx, my int) bool {
+	if mx > b.x && my > b.y && mx < b.x+b.height && my < b.y+b.width {
+		return true
+	}
+	return false
+}
+
+func (b button) draw(d *display.Terminal) {
+	d.DrawRectangle(b.x, b.y, b.width, b.height, b.border)
+	d.DrawRectangle(b.x+1, b.y+1, b.width-2, b.height-2, b.color)
 }
 
 func main() {
@@ -85,25 +155,48 @@ func main() {
 		log.Fatal(err)
 	}
 
-	chars := charGrid{
-		grid:        make(map[int]bool),
+	grid := &grid{
+		bitmap:      make(map[int]bool),
 		bottomLeftX: (28 * charWidth) + 1,
 		bottomLeftY: (10 * charHeight) + 1,
 	}
 
+	resetBtn := button{
+		x:      320,
+		y:      154,
+		width:  48,
+		height: 33,
+		border: display.ColorTerminalGreen,
+		color: display.Color{
+			R: 200,
+			G: 0,
+			B: 0,
+		},
+	}
+
 	events := &websocket.Events{
+
+		OnKeypress: func(key int) {
+
+			fmt.Printf("keypress: %v\n", key)
+
+		},
 
 		OnClick: func(btn, x, y int) {
 
-			w, b := chars.which(x, y)
+			if resetBtn.is(x, y) {
+				grid.reset()
+			}
+
+			w, b := grid.which(x, y)
 
 			if w != -1 {
 
-				chars.grid[w] = !chars.grid[w]
+				grid.bitmap[w] = !grid.bitmap[w]
 
 				var color display.Color
 
-				if chars.grid[w] {
+				if grid.bitmap[w] {
 					color = display.ColorTerminalGreen
 				} else {
 					color = display.ColorBackground
@@ -115,21 +208,22 @@ func main() {
 					alt = display.ColorBlack
 				}
 
-				d.DrawRectangle(b.left-1, b.bottom-1, charWidth + 1, charHeight + 1, alt)
-				d.DrawRectangle(b.left, b.bottom, charWidth -1, charHeight - 1, color)
-
-				dx := chars.bottomLeftX - 1
-				dy := chars.bottomLeftY - 1
-				dbx := charWidth * charWidth + dx
-				dby := charHeight * charHeight + dy
+				d.DrawRectangle(b.left-1, b.bottom-1, charWidth+1, charHeight+1, alt)
+				d.DrawRectangle(b.left, b.bottom, charWidth-1, charHeight-1, color)
 
 				// fix border
+
+				dx := grid.bottomLeftX - 1
+				dy := grid.bottomLeftY - 1
+				dbx := charWidth*charWidth + dx
+				dby := charHeight*charHeight + dy
+
 				d.DrawLine(dx, dy, dx, dby, display.ColorTerminalGreen)
 				d.DrawLine(dx, dy, dbx, dy, display.ColorTerminalGreen)
 				d.DrawLine(dbx, dy, dbx, dby, display.ColorTerminalGreen)
 				d.DrawLine(dx, dby, dbx, dby, display.ColorTerminalGreen)
 
-				fmt.Println(chars.String())
+				fmt.Println(grid.String())
 
 			}
 
@@ -138,15 +232,13 @@ func main() {
 
 	hub.OnRegister = func(client *websocket.Client) {
 
-		d = display.Terminal{
-			Writer: client,
-			Width:  width,
-			Height: height,
-		}
+		d = display.New(width, height, client)
 
 		d.Clear(display.ColorBackground)
 
-		d.CharGrid(charWidth, charHeight, display.ColorTerminalGreen)
+		grid.drawEmpty(d, display.ColorTerminalGreen)
+
+		resetBtn.draw(d)
 
 	}
 

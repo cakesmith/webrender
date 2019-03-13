@@ -68,7 +68,8 @@ func NewHub() (*Hub, error) {
 }
 
 type Events struct {
-	OnClick func(btn, x, y int)
+	OnClick    func(btn, x, y int)
+	OnKeypress func(key int)
 }
 
 func (hub *Hub) Handler(ev *Events) func(w http.ResponseWriter, r *http.Request) {
