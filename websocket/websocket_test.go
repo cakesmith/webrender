@@ -19,7 +19,7 @@ func TestWebsocket(t *testing.T) {
 		t.Error(err)
 	}
 
-	server := httptest.NewServer(http.HandlerFunc(hub.Handler()))
+	server := httptest.NewServer(http.HandlerFunc(hub.Handler(&websocket.Events{})))
 
 	defer func() {
 		server.Close()

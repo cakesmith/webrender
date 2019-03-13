@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestController(t *testing.T) {
+func XTestController(t *testing.T) {
 
 	// Modbus TCP
 	handler := modbus.NewTCPClientHandler("192.168.1.3:502")
@@ -68,6 +68,6 @@ func TestGetScaling(t *testing.T) {
 
 }
 
-func TestScale(t *testing.T) {
+func XTestScale(t *testing.T) {
 
 }
