@@ -48,26 +48,26 @@ func (p Color) String() string {
 
 type Terminal struct {
 	io.Writer
-	Width, Height    int
-	cursorX, cursorY int
+	Width, Height         int
+	cursorX, cursorY      int
 	charWidth, charHeight int
-	charMap          charMap
+	charMap               charMap
 }
 
 func bit(x, j int) bool {
-	return !(x & (1 << uint(j)) == 0)
+	return !(x&(1<<uint(j)) == 0)
 }
 
 func (t *Terminal) print(ch int) {
 
-	startX, startY := t.cursorX * t.charWidth, t.cursorY * t.charHeight
+	startX, startY := t.cursorX*t.charWidth, t.cursorY*t.charHeight
 
-	stopX, stopY := startX + t.charWidth, startY + t.charHeight
+	stopX, stopY := startX+t.charWidth, startY+t.charHeight
 
 	printMe := t.charMap.get(ch)
 
-	for y := 0; startY + y < stopY; y++ {
-		for x := 0; startX + x < stopX; x++ {
+	for y := 0; startY+y < stopY; y++ {
+		for x := 0; startX+x < stopX; x++ {
 
 			color := ColorTerminalGreen
 
@@ -77,7 +77,7 @@ func (t *Terminal) print(ch int) {
 				color = ColorBackground
 			}
 
-			t.DrawPixel(startX + x, startY + y, color)
+			t.DrawPixel(startX+x, startY+y, color)
 
 		}
 	}
@@ -86,12 +86,11 @@ func (t *Terminal) print(ch int) {
 
 //Advances the cursor to the beginning of the next line.
 func (t *Terminal) println() {
-	if t.cursorY < t.Height / t.charHeight {
+	if t.cursorY < t.Height/t.charHeight {
 		t.cursorX = 0
 		t.cursorY++
 	}
 }
-
 
 func (t *Terminal) PrintChar(ch int) {
 
@@ -121,7 +120,7 @@ func New(width, height, charWidth, charHeight int, writer io.Writer) *Terminal {
 
 	t := &Terminal{
 		Writer: writer,
-		Width: width, Height: height,
+		Width:  width, Height: height,
 		charWidth: charWidth, charHeight: charHeight,
 		charMap: make(map[int]character),
 	}
@@ -365,7 +364,7 @@ func (ch charMap) init() {
 
 	ch.add(48, 0, 0, 12, 18, 33, 33, 45, 33, 33, 18, 12) // 0
 	ch.add(49, 0, 0, 31, 4, 4, 4, 4, 4, 5, 6, 4)         // 1
-	ch.add(50, 0, 63, 2, 4, 8, 16, 32, 32, 33, 30)       // 2
+	ch.add(50, 0, 0, 63, 2, 4, 8, 16, 32, 32, 33, 30)       // 2
 	//ch.add(51,)
 	//ch.add(52,)
 	//ch.add(53,)

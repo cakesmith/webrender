@@ -167,7 +167,7 @@ func main() {
 		width:  48,
 		height: 33,
 		border: display.ColorTerminalGreen,
-		color: display.ColorRed,
+		color:  display.ColorRed,
 	}
 
 	events := &websocket.Events{
