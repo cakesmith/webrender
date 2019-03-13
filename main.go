@@ -68,6 +68,7 @@ func main() {
 	events := &websocket.Events{
 
 		OnClick: func(btn, x, y int) {
+
 			w, b := chars.which(x, y)
 			if w != -1 {
 				chars.grid[w] = !chars.grid[w]
@@ -77,9 +78,22 @@ func main() {
 				} else {
 					color = display.ColorBackground
 				}
+				alt := display.ColorTerminalGreen
+				if alt == color {
+					alt = display.ColorBlack
+				}
+				d.DrawRectangle(b.left-1, b.bottom-1, 9, 12, alt)
 				d.DrawRectangle(b.left, b.bottom, 7, 10, color)
+				dx := chars.bottomLeftX - 1
+				dy := chars.bottomLeftY - 1
+
+				d.DrawLine(dx, dy, dx, 11*11+dy, display.ColorTerminalGreen)
+				d.DrawLine(dx, dy, 8*8+dx, dy, display.ColorTerminalGreen)
+				d.DrawLine(8*8+dx, dy, 8*8+dx, 11*11+dy, display.ColorTerminalGreen)
+				d.DrawLine(dx, 11*11+dy, 8*8+dx, 11*11+dy, display.ColorTerminalGreen)
 
 			}
+
 		},
 	}
 
