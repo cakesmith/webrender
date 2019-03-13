@@ -88,7 +88,7 @@ func (g *grid) draw(t *display.Terminal, color display.Color) error {
 	x1 := 28 * charWidth
 	y1 := 10 * charHeight
 	w1 := 36 * charWidth
-	h1 := 21 * charHeight
+	h1 := 21 * charHeight + 1
 
 	t.DrawRectangle(28*charWidth, 10*charHeight, 8*charWidth, 11*charHeight, display.ColorBackground)
 
@@ -115,11 +115,6 @@ func (g *grid) draw(t *display.Terminal, color display.Color) error {
 			return err
 		}
 	}
-
-	//t.DrawRectangle(0, 0, t.Width, 11*10, display.ColorBackground)
-	//t.DrawRectangle(0, t.Height, t.Width, (-11*9)+1, display.ColorBackground)
-	//t.DrawRectangle(0, 0, 28*8, t.Height, display.ColorBackground)
-	//t.DrawRectangle((36*8)+1, 0, t.Width-((36*8)+1), t.Height, display.ColorBackground)
 
 	return nil
 }
