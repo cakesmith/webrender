@@ -5,6 +5,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/cakesmith/webrender/system/display"
 	"github.com/cakesmith/webrender/websocket"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -63,22 +64,37 @@ func (g *grid) String() string {
 	return strings.Join(n, ", ")
 }
 
-func (g *grid) which(mx, my int) (int, bounds) {
+func (g *grid) bounds(n int) bounds {
+
+	x := int(math.Mod(float64(n), float64(charWidth)))
+	y := int(math.Floor(float64(n)/float64(charWidth)))
+
+	return g.calcBounds(x, y)
+
+}
+
+func (g *grid) calcBounds(x, y int) bounds {
+	left := g.bottomLeftX + (charWidth * x)
+	right := left + charWidth
+	bottom := g.bottomLeftY + (charHeight * y)
+	top := bottom + charHeight
+
+	return bounds{left, right, bottom, top}
+}
+
+func (g *grid) which(mx, my int) int {
 
 	for y := 0; y < charHeight; y++ {
 		for x := 0; x < charWidth; x++ {
 
-			left := g.bottomLeftX + (charWidth * x)
-			right := left + charWidth
-			bottom := g.bottomLeftY + (charHeight * y)
-			top := bottom + charHeight
+			b := g.calcBounds(x, y)
 
-			if mx > left && mx < right && my > bottom && my < top {
-				return x + (charWidth * y), bounds{left, right, bottom, top}
+			if mx > b.left && mx < b.right && my > b.bottom && my < b.top {
+				return x + (charWidth * y)
 			}
 		}
 	}
-	return -1, bounds{}
+	return -1
 }
 
 func (g *grid) draw(t *display.Terminal, color display.Color) error {
@@ -88,7 +104,7 @@ func (g *grid) draw(t *display.Terminal, color display.Color) error {
 	x1 := 28 * charWidth
 	y1 := 10 * charHeight
 	w1 := 36 * charWidth
-	h1 := 21 * charHeight + 1
+	h1 := 21*charHeight + 1
 
 	t.DrawRectangle(28*charWidth, 10*charHeight, 8*charWidth, 11*charHeight, display.ColorBackground)
 
@@ -117,6 +133,10 @@ func (g *grid) draw(t *display.Terminal, color display.Color) error {
 	}
 
 	return nil
+}
+
+func (g *grid) drawChar(t *display.Terminal, ch int) {
+
 }
 
 type button struct {
@@ -165,12 +185,65 @@ func main() {
 		color:  display.ColorRed,
 	}
 
+	skipKeys := []int{
+		20, // caps lock
+		16, // shift
+	}
+
 	events := &websocket.Events{
 
 		OnKeypress: func(key int) {
 
 			fmt.Printf("keypress: %v\n", key)
+
+			for _, k := range skipKeys {
+				if key == k {
+					fmt.Println("skipping key")
+					return
+				}
+			}
+
+
 			d.PrintChar(key)
+
+			grid.reset()
+
+			printMe := d.CharMap[key]
+
+			for y := 0; y < height / charHeight; y++ {
+				for x := 0; x < width / charWidth; x++ {
+
+					pixel := display.Bit(printMe[y], x)
+
+					if pixel {
+
+						n := y * charWidth + x
+						grid.bitmap[n] = true
+
+						b := grid.bounds(n)
+
+						d.DrawRectangle(b.left-1, b.bottom-1, charWidth+1, charHeight+1, display.ColorBlack)
+						d.DrawRectangle(b.left, b.bottom, charWidth-1, charHeight-1, display.ColorTerminalGreen)
+
+						// fix border
+
+						dx := grid.bottomLeftX - 1
+						dy := grid.bottomLeftY - 1
+						dbx := charWidth*charWidth + dx
+						dby := charHeight*charHeight + dy
+
+						d.DrawLine(dx, dy, dx, dby, display.ColorTerminalGreen)
+						d.DrawLine(dx, dy, dbx, dy, display.ColorTerminalGreen)
+						d.DrawLine(dbx, dy, dbx, dby, display.ColorTerminalGreen)
+						d.DrawLine(dx, dby, dbx, dby, display.ColorTerminalGreen)
+
+					}
+
+
+				}
+			}
+
+
 
 		},
 
@@ -180,7 +253,7 @@ func main() {
 				grid.reset()
 			}
 
-			w, b := grid.which(x, y)
+			w := grid.which(x, y)
 
 			if w != -1 {
 
@@ -199,6 +272,8 @@ func main() {
 				if alt == color {
 					alt = display.ColorBlack
 				}
+
+				b := grid.bounds(w)
 
 				d.DrawRectangle(b.left-1, b.bottom-1, charWidth+1, charHeight+1, alt)
 				d.DrawRectangle(b.left, b.bottom, charWidth-1, charHeight-1, color)

@@ -62,7 +62,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.addEventListener('keydown', function(e) {
         e.preventDefault();
-        ws.send("k " + e.keyCode)
+        if (e.key.length !== 1) {
+            return
+        }
+        ws.send("k " + e.key.charCodeAt(0))
     });
 
     let full = document.getElementById("full");
