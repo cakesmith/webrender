@@ -27,7 +27,11 @@ function processCommand(ctx, data) {
     }
 }
 
+
 document.addEventListener("DOMContentLoaded", function() {
+
+    let width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    let height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
     let screen = document.getElementById('screen');
 
@@ -39,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     ws.onopen = function(){
         console.log('connected!');
+        ws.send("d " + width + " " + height )
     };
 
     ws.onmessage = function(e){
@@ -50,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
 
     };
+
     ws.onclose = function(){
         console.log('closed!');
         window.location.reload(true)
@@ -67,6 +73,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         ws.send("k " + e.key.charCodeAt(0))
     });
+
 
     let full = document.getElementById("full");
 

@@ -8,7 +8,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 	"io/ioutil"
-	"strconv"
+	"net/http"
 	"strings"
 	"time"
 
@@ -30,8 +30,9 @@ const (
 )
 
 var (
+	log = logrus.New()
 	newline = []byte{'\n'}
-	space   = []byte{' '}
+	//space   = []byte{' '}
 )
 
 var upgrader = websocket.Upgrader{
@@ -39,11 +40,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-// Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	Id string
-
-	hub *Hub
 
 	// The websocket connection.
 	conn *websocket.Conn
@@ -51,8 +48,28 @@ type Client struct {
 	// Buffered channel of outbound messages.
 	send chan []byte
 
-	Events *Events
+	// called when message is received
+	OnRecv func([]byte)
+
 }
+
+func (c *Client) Handler(w http.ResponseWriter, r *http.Request) {
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUpgradeRequired)
+	}
+
+	c.send = make(chan []byte, 256)
+	c.conn = conn
+
+	// Allow collection of memory referenced by the caller by doing all work in
+	// new goroutines.
+	go c.writePump()
+	go c.readPump()
+
+}
+
 
 func (c *Client) Write(p []byte) (int, error) {
 	c.send <- p
@@ -60,57 +77,10 @@ func (c *Client) Write(p []byte) (int, error) {
 }
 
 func (c *Client) Close() error {
-	c.hub.unregister <- c
 	return c.conn.Close()
 }
 
-func (c *Client) dispatch(cmd []byte) {
 
-	split := strings.Split(string(cmd), " ")
-
-	switch split[0] {
-
-	// keypress
-	case "k":
-
-		k, err := strconv.Atoi(string(split[1]))
-		if err != nil {
-			log.WithField("command", string(cmd)).Error(err)
-			return
-		}
-		c.Events.OnKeypress(k)
-
-	// mouse click
-	case "mc":
-
-		btn, err := strconv.Atoi(string(split[1]))
-		if err != nil {
-			log.WithField("command", string(cmd)).Error(err)
-			return
-		}
-
-		x, err := strconv.Atoi(string(split[2]))
-		if err != nil {
-			log.WithField("command", string(cmd)).Error(err)
-			return
-		}
-
-		y, err := strconv.Atoi(string(split[3]))
-		if err != nil {
-			log.WithField("command", string(cmd)).Error(err)
-			return
-		}
-
-		if c.Events.OnClick != nil {
-			c.Events.OnClick(btn, x, y)
-		}
-
-	}
-
-}
-
-// readPump pumps messages from the websocket connection to the hub.
-//
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
@@ -143,17 +113,15 @@ func (c *Client) readPump() {
 				log.Error(errors.Wrap(err, "connection read error"))
 				return
 			}
-			//message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-			log.WithFields(logrus.Fields{"client": c.Id, "msg": string(message)}).Info("received")
 
-			c.dispatch(message)
+			logrus.WithField("msg", string(message)).Info("received")
+
+			go c.OnRecv(message)
 
 		}
 	}
 }
 
-// writePump pumps messages from the hub to the websocket connection.
-//
 // A goroutine running writePump is started for each connection. The
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.

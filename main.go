@@ -16,13 +16,13 @@ var (
 	log = logrus.New()
 
 	//TODO use html template to pass these values to index.html
-	width  = 512
-	height = 330
-
+	//width  = 512
+	//height = 330
+	//
 	charWidth  = 8
 	charHeight = 11
-
-	d *display.Terminal
+	//
+	//d *display.Terminal
 )
 
 type grid struct {
@@ -67,7 +67,7 @@ func (g *grid) String() string {
 func (g *grid) bounds(n int) bounds {
 
 	x := int(math.Mod(float64(n), float64(charWidth)))
-	y := int(math.Floor(float64(n)/float64(charWidth)))
+	y := int(math.Floor(float64(n) / float64(charWidth)))
 
 	return g.calcBounds(x, y)
 
@@ -165,11 +165,6 @@ func main() {
 		log.Fatal("$PORT environment variable must be set")
 	}
 
-	hub, err := websocket.NewHub()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	grid := &grid{
 		bitmap:      make(map[int]bool),
 		bottomLeftX: (28 * charWidth) + 1,
@@ -190,6 +185,8 @@ func main() {
 		16, // shift
 	}
 
+
+
 	events := &websocket.Events{
 
 		OnKeypress: func(key int) {
@@ -203,21 +200,20 @@ func main() {
 				}
 			}
 
-
 			d.PrintChar(key)
 
 			grid.reset()
 
 			printMe := d.CharMap[key]
 
-			for y := 0; y < height / charHeight; y++ {
-				for x := 0; x < width / charWidth; x++ {
+			for y := 0; y < height/charHeight; y++ {
+				for x := 0; x < width/charWidth; x++ {
 
 					pixel := display.Bit(printMe[y], x)
 
 					if pixel {
 
-						n := y * charWidth + x
+						n := y*charWidth + x
 						grid.bitmap[n] = true
 
 						b := grid.bounds(n)
@@ -239,11 +235,8 @@ func main() {
 
 					}
 
-
 				}
 			}
-
-
 
 		},
 
@@ -295,27 +288,81 @@ func main() {
 			}
 
 		},
+
+		OnReady: func(width, height int) {
+
+		},
 	}
 
-	hub.OnRegister = func(client *websocket.Client) {
+	//hub.OnRegister = func(client *websocket.Client) {
 
-		d = display.New(width, height, charWidth, charHeight, client)
+		//
+		//
+		//d = display.New(width, height, charWidth, charHeight, client)
+		//
+		//d.Clear(display.ColorBackground)
+		//
+		//grid.draw(d, display.ColorTerminalGreen)
+		//
+		//resetBtn.draw(d)
 
-		d.Clear(display.ColorBackground)
+	//}
 
-		grid.draw(d, display.ColorTerminalGreen)
+	client := &websocket.Client{
 
-		resetBtn.draw(d)
+		OnRecv: func(cmd []byte) {
+			split := strings.Split(string(cmd), " ")
 
+			switch split[0] {
+
+			// keypress
+			case "k":
+
+				k, err := strconv.Atoi(string(split[1]))
+				if err != nil {
+					log.WithField("command", string(cmd)).Error(err)
+					return
+				}
+
+				c.Events.OnKeypress(k)
+
+			// mouse click
+			case "mc":
+
+				btn, err := strconv.Atoi(string(split[1]))
+				if err != nil {
+					log.WithField("command", string(cmd)).Error(err)
+					return
+				}
+
+				x, err := strconv.Atoi(string(split[2]))
+				if err != nil {
+					log.WithField("command", string(cmd)).Error(err)
+					return
+				}
+
+				y, err := strconv.Atoi(string(split[3]))
+				if err != nil {
+					log.WithField("command", string(cmd)).Error(err)
+					return
+				}
+
+				if c.Events.OnClick != nil {
+					c.Events.OnClick(btn, x, y)
+				}
+
+			}
+
+		},
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("public/")))
 
-	http.HandleFunc("/ws", hub.Handler(events))
+	http.HandleFunc("/ws", client.Handler)
 
 	logrus.WithField("port", port).Info("ready")
 
-	err = http.ListenAndServe(":"+port, nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		logrus.Error(err)
 	}
