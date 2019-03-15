@@ -5,11 +5,14 @@
 package websocket
 
 import (
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -27,10 +30,13 @@ const (
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
+
+	// Request timeout
+	reqTimeout = time.Second * 2
 )
 
 var (
-	log = logrus.New()
+	log     = logrus.New()
 	newline = []byte{'\n'}
 	//space   = []byte{' '}
 )
@@ -41,16 +47,82 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
+	mutex sync.Mutex
+
+	pending map[uint64]*call
+
+	counter uint64
 
 	// The websocket connection.
 	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+}
 
-	// called when message is received
-	OnRecv func([]byte)
+// call represents an active request
+type call struct {
+	res   []byte
+	done  chan bool
+	Error error
+}
 
+func newCall() *call {
+	done := make(chan bool)
+	return &call{
+		done: done,
+	}
+}
+
+func New() *Client {
+	return &Client{
+		pending: make(map[uint64]*call, 1),
+	}
+}
+
+type Command struct {
+	Name   string
+	Params []string
+}
+
+func (c Command) MakePacket() []byte {
+	return []byte(strings.Join(append([]string{c.Name}, c.Params...), " "))
+}
+
+func (c *Client) Request(payload []string) ([]byte, error) {
+
+	c.mutex.Lock()
+	id := c.counter
+	c.counter++
+	call := newCall()
+	c.pending[id] = call
+
+	params := append([]string{fmt.Sprint(id)}, payload...)
+
+	_, err := c.Write(Command{
+		Name:   "req",
+		Params: params,
+	}.MakePacket())
+
+	if err != nil {
+		delete(c.pending, id)
+		c.mutex.Unlock()
+		return nil, err
+	}
+
+	c.mutex.Unlock()
+
+	select {
+	case <-call.done:
+	case <-time.After(reqTimeout):
+		call.Error = errors.New("request timeout")
+	}
+
+	if call.Error != nil {
+		return nil, call.Error
+	}
+
+	return call.res, nil
 }
 
 func (c *Client) Handler(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +142,6 @@ func (c *Client) Handler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
 func (c *Client) Write(p []byte) (int, error) {
 	c.send <- p
 	return len(p), nil
@@ -79,7 +150,6 @@ func (c *Client) Write(p []byte) (int, error) {
 func (c *Client) Close() error {
 	return c.conn.Close()
 }
-
 
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
@@ -116,7 +186,33 @@ func (c *Client) readPump() {
 
 			logrus.WithField("msg", string(message)).Info("received")
 
-			go c.OnRecv(message)
+			split := strings.Split(string(message), " ")
+
+			// see if this is a response
+			if split[0] == "res" {
+				id, err := strconv.ParseUint(split[1], 10, 64)
+				if err != nil {
+					log.Error(err)
+				}
+
+				res := split[2:]
+
+				c.mutex.Lock()
+
+				call := c.pending[id]
+				delete(c.pending, id)
+
+				c.mutex.Unlock()
+
+				if call == nil {
+					err = errors.New("no pending request found")
+					continue
+				}
+
+				call.res = []byte(strings.Join(res, " "))
+				call.done <- true
+
+			}
 
 		}
 	}
@@ -143,8 +239,6 @@ func (c *Client) writePump() {
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 
 			if !ok {
-				// The hub closed the channel.
-				log.Info("hub closed channel")
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}

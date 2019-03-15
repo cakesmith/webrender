@@ -6,8 +6,6 @@ import (
 
 func TestWebsocket(t *testing.T) {
 
-
-
 	//message := "hello, websocket!"
 	//clientId := "client 1"
 	//

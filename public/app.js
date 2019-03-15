@@ -24,14 +24,36 @@ function processCommand(ctx, data) {
 
             break;
 
+
+        case "req":
+
+            let id = fields[1];
+
+            switch(fields[2]) {
+
+                case "h":
+                    let height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+                    ws.send("res " + id + " " + height);
+                    
+                    break;
+
+                case "w":
+                    let width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+
+                    ws.send("res " + id + " " + width);
+
+                    break;
+
+            }
+
+
     }
 }
 
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    let width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    let height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
     let screen = document.getElementById('screen');
 
