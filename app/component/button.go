@@ -10,12 +10,11 @@ type Button struct {
 	Border
 }
 
-
 func NewButton(color color.Color, border Border, x, y, width, height int) *Button {
 	b := Button{
 		Component: &Component{
-			Color: color,
-			Rectangle: image.Rect(x, y, x + width, y + height),
+			Color:     color,
+			Rectangle: image.Rect(x, y, x+width, y+height),
 		},
 		Border: border,
 	}

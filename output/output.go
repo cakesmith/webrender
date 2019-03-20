@@ -47,7 +47,7 @@ func (t *Terminal) Set(x, y int, c color.Color) {
 	t.DrawRectangle(x, y, 1, 1, c)
 }
 
-func (t *Terminal) DrawRectangle(x1, y1, w, h int, c color.Color)  {
+func (t *Terminal) DrawRectangle(x1, y1, w, h int, c color.Color) {
 	r, g, b, a := c.RGBA()
 	r8 := uint8(r)
 	g8 := uint8(g)

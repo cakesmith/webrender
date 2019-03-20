@@ -32,11 +32,10 @@ type Clickable interface {
 	OnClick(btn, x, y int)
 }
 
-
 type Container struct {
 	image.Rectangle
 	Components []*Component
-	Focused Focusable
+	Focused    Focusable
 	state.Stateful
 	output.Terminal
 }
@@ -89,14 +88,14 @@ type Component struct {
 	image.Rectangle
 	color.Color
 	*Container
-	Init func()
+	Init       func()
 	OnKeypress func(key int)
-	OnClick func(btn, x, y int)
-	Draw func()
+	OnClick    func(btn, x, y int)
+	Draw       func()
 }
 
 func (component *Component) Set(x, y int, color color.Color) {
-	if (image.Point{X:x, Y:y}).In(component.Bounds()) {
+	if (image.Point{X: x, Y: y}).In(component.Bounds()) {
 		dx := x + component.Bounds().Min.X
 		dy := y + component.Bounds().Min.Y
 		component.Container.Set(dx, dy, color)
@@ -111,5 +110,3 @@ type Border struct {
 	color.Color
 	Thickness int
 }
-
-

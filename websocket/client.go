@@ -55,7 +55,6 @@ func (cmd Command) MakePacket() []byte {
 }
 
 type Client struct {
-
 	OnRegister func()
 
 	mutex sync.Mutex

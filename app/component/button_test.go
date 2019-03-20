@@ -11,23 +11,20 @@ import (
 var width = 640
 var height = 480
 
-
-
-
 func createContainer(w, h int) (*component.Container, *bytes.Buffer) {
 
 	buf := new(bytes.Buffer)
 	main := component.Container{
-		Rectangle: image.Rect(0, 0, width, height),
-		Terminal: output.Terminal{Writer: buf},
+		Rectangle:  image.Rect(0, 0, width, height),
+		Terminal:   output.Terminal{Writer: buf},
 		Components: []*component.Component{},
 	}
 	return &main, buf
 }
 
 var redBorder = component.Border{
-Color: output.ColorRed,
-Thickness: 1,
+	Color:     output.ColorRed,
+	Thickness: 1,
 }
 
 func TestFocus(t *testing.T) {
@@ -45,9 +42,7 @@ func TestFocus(t *testing.T) {
 
 	main.Add(testButton.Component)
 
-
 }
-
 
 func TestButton(t *testing.T) {
 
@@ -58,7 +53,7 @@ func TestButton(t *testing.T) {
 	main.Add(testButton.Component)
 
 	var (
-		initCalled = false
+		initCalled               = false
 		keyPressed, tbtn, tx, ty int
 	)
 
@@ -83,7 +78,6 @@ func TestButton(t *testing.T) {
 
 	cmdstr := string(buf.Bytes())
 
-
 	// init should be called
 
 	// draw should be called twice
@@ -95,7 +89,6 @@ func TestButton(t *testing.T) {
 	if cmdstr != expected {
 		t.Errorf("expected\n%v\nreceived\n%v", expected, cmdstr)
 	}
-
 
 	main.OnClick(1, 50, 75)
 
@@ -122,7 +115,4 @@ func TestButton(t *testing.T) {
 		t.Errorf("expected 55 received %v", keyPressed)
 	}
 
-
 }
-
-

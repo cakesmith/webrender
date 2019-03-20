@@ -14,7 +14,6 @@ type TextArea struct {
 	CharMap               *Mapping
 }
 
-
 //Bit returns true if the jth bit of x is 1, and false otherwise.
 func Bit(x, j int) bool {
 	return !(x&(1<<uint(j)) == 0)

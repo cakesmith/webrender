@@ -2,11 +2,7 @@ package main
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/cakesmith/webrender/app"
-	"github.com/cakesmith/webrender/app/font"
 	"github.com/cakesmith/webrender/websocket"
-	"image"
-	"image/draw"
 	"net/http"
 	"os"
 )
@@ -173,8 +169,8 @@ func main() {
 
 	client.OnRegister = func() {
 
-		width := 512
-		height := 330
+		//width := 512
+		//height := 330
 
 		//cont := app.Container{
 		//	App: font.Designer{},
@@ -182,51 +178,50 @@ func main() {
 
 	}
 
-		//OnRecv: func(cmd []byte) {
-		//	split := strings.Split(string(cmd), " ")
-		//
-		//	switch split[0] {
-		//
-		//	// keypress
-		//	case "k":
-		//
-		//		k, err := strconv.Atoi(string(split[1]))
-		//		if err != nil {
-		//			log.WithField("command", string(cmd)).Error(err)
-		//			return
-		//		}
-		//
-		//		c.Events.OnKeypress(k)
-		//
-		//	// mouse click
-		//	case "mc":
-		//
-		//		btn, err := strconv.Atoi(string(split[1]))
-		//		if err != nil {
-		//			log.WithField("command", string(cmd)).Error(err)
-		//			return
-		//		}
-		//
-		//		x, err := strconv.Atoi(string(split[2]))
-		//		if err != nil {
-		//			log.WithField("command", string(cmd)).Error(err)
-		//			return
-		//		}
-		//
-		//		y, err := strconv.Atoi(string(split[3]))
-		//		if err != nil {
-		//			log.WithField("command", string(cmd)).Error(err)
-		//			return
-		//		}
-		//
-		//		if c.Events.OnClick != nil {
-		//			c.Events.OnClick(btn, x, y)
-		//		}
-		//
-		//	}
-		//
-		//},
-
+	//OnRecv: func(cmd []byte) {
+	//	split := strings.Split(string(cmd), " ")
+	//
+	//	switch split[0] {
+	//
+	//	// keypress
+	//	case "k":
+	//
+	//		k, err := strconv.Atoi(string(split[1]))
+	//		if err != nil {
+	//			log.WithField("command", string(cmd)).Error(err)
+	//			return
+	//		}
+	//
+	//		c.Events.OnKeypress(k)
+	//
+	//	// mouse click
+	//	case "mc":
+	//
+	//		btn, err := strconv.Atoi(string(split[1]))
+	//		if err != nil {
+	//			log.WithField("command", string(cmd)).Error(err)
+	//			return
+	//		}
+	//
+	//		x, err := strconv.Atoi(string(split[2]))
+	//		if err != nil {
+	//			log.WithField("command", string(cmd)).Error(err)
+	//			return
+	//		}
+	//
+	//		y, err := strconv.Atoi(string(split[3]))
+	//		if err != nil {
+	//			log.WithField("command", string(cmd)).Error(err)
+	//			return
+	//		}
+	//
+	//		if c.Events.OnClick != nil {
+	//			c.Events.OnClick(btn, x, y)
+	//		}
+	//
+	//	}
+	//
+	//},
 
 	http.Handle("/", http.FileServer(http.Dir("public/")))
 
