@@ -80,9 +80,10 @@ func (t *Terminal) DrawRectangle(rect image.Rectangle, c color.Color) {
 //	return t.DrawRectangle(x1, y, x2-x1, 1, color)
 //}
 //
-func (t *Terminal) DrawPixel(x, y int, color color.Color)  {
+func (t *Terminal) DrawPixel(x, y int, color color.Color) {
 	t.DrawRectangle(image.Rect(x, y, x+1, y+1), color)
 }
+
 //
 //func (t *Terminal) DrawLine(x1, y1, x2, y2 int, color color.Color) error {
 //

@@ -217,7 +217,6 @@ func (client *Client) readPump(onrecv func([]byte)) {
 
 			logrus.WithField("msg", string(message)).Info("received")
 
-
 			split := strings.Split(string(message), " ")
 
 			// see if this is a response

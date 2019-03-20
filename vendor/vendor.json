@@ -33,6 +33,12 @@
 			"revisionTime": "2019-02-17T22:52:12Z"
 		},
 		{
+			"checksumSHA1": "gNde6u9SCqNivjpXvJ19nc4jCF8=",
+			"path": "github.com/rs/xid",
+			"revision": "cc5ec5782ac92773c5cc967b35ac567c2ac73e53",
+			"revisionTime": "2019-03-18T06:46:04Z"
+		},
+		{
 			"checksumSHA1": "CVmt+DETeuUZkKC6MUJbTqc/iYU=",
 			"path": "golang.org/x/crypto/ssh/terminal",
 			"revision": "74369b46fc6756741c016591724fd1cb8e26845f",

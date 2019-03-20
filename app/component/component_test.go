@@ -17,7 +17,6 @@ func createContainer(w, h int) (*component.Container, *bytes.Buffer) {
 	main := component.Container{
 		Rectangle:  image.Rect(0, 0, w, h),
 		Terminal:   output.Terminal{Writer: buf},
-		components: []*component.Component{},
 	}
 	return &main, buf
 }
@@ -350,6 +349,17 @@ func TestButton(t *testing.T) {
 
 	main.Add(testButton.Component)
 
+	cmdstr := string(buf.Bytes())
+
+	// init should be called
+
+	// draw should be called twice
+
+	expected := "r 100 200 50 75 200:0:0:0r 101 201 48 73 51:255:51:0"
+	if cmdstr != expected {
+		t.Errorf("expected\n%v\nreceived\n%v", expected, cmdstr)
+	}
+
 	var (
 		initCalled               = false
 		keyPressed, tbtn, tx, ty int
@@ -357,7 +367,6 @@ func TestButton(t *testing.T) {
 
 	testButton.Component.Init = func() {
 		initCalled = true
-		testButton.Draw()
 	}
 
 	testButton.Component.OnKeypress = func(key int) {
@@ -372,17 +381,6 @@ func TestButton(t *testing.T) {
 
 	if !initCalled {
 		t.Error("init not called")
-	}
-
-	cmdstr := string(buf.Bytes())
-
-	// init should be called
-
-	// draw should be called twice
-
-	expected := "r 100 200 50 75 200:0:0:0r 101 201 48 73 51:255:51:0"
-	if cmdstr != expected {
-		t.Errorf("expected\n%v\nreceived\n%v", expected, cmdstr)
 	}
 
 	main.OnClick(1, 50, 75)
@@ -409,9 +407,5 @@ func TestButton(t *testing.T) {
 	if keyPressed != 55 {
 		t.Errorf("expected 55 received %v", keyPressed)
 	}
-
-}
-
-func TestSubComponents(t *testing.T) {
 
 }

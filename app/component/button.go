@@ -24,12 +24,14 @@ func NewButton(color color.Color, border Border, x, y, width, height int) *Butto
 		b.Draw()
 	}
 
-	b.Component.Init = func(){}
+	b.Component.Init = func() {}
 
 	return &b
 }
 
 func (b *Button) Draw() {
-	b.DrawRectangle(b.Bounds(), b.Border)
+	if b.Border.Color != nil {
+		b.DrawRectangle(b.Bounds(), b.Border)
+	}
 	b.DrawRectangle(b.Bounds().Inset(b.Border.Thickness), b.Component.Color)
 }

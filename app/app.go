@@ -101,4 +101,3 @@ func (app *App) OnRegister() {
 	}
 
 }
-

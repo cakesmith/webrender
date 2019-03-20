@@ -8,12 +8,11 @@ import (
 type TextArea struct {
 	*Component
 	Border
-	TextColor            color.Color
+	TextColor             color.Color
 	cursorX, cursorY      int
 	CharWidth, CharHeight int
 	CharMap               *Mapping
 }
-
 
 func NewTextArea(backgroundColor color.Color, textColor color.Color, border Border, charWidth, charHeight, x, y, w, h int) *TextArea {
 
@@ -21,10 +20,10 @@ func NewTextArea(backgroundColor color.Color, textColor color.Color, border Bord
 
 	t := &TextArea{
 		Component: &Component{
-			Rectangle:  image.Rect(x, y, x+w, y+h),
-			Color:      backgroundColor,
-			Init:       nil,
-			OnClick:    nil,
+			Rectangle: image.Rect(x, y, x+w, y+h),
+			Color:     backgroundColor,
+			Init:      nil,
+			OnClick:   nil,
 		},
 		Border:     border,
 		TextColor:  textColor,
@@ -35,14 +34,14 @@ func NewTextArea(backgroundColor color.Color, textColor color.Color, border Bord
 
 	t.Init = func() {
 
-		chw := t.width()/t.CharWidth
-		chh := t.height()/t.CharHeight
+		chw := t.width() / t.CharWidth
+		chh := t.height() / t.CharHeight
 
 		str := "ALL WORK AND NO PLAY MAKES JACK A DULL BOY. "
 
 		log.Println(str)
-		
-		for i := 0; i + len(str) < chw * chh; i = i + len(str) {
+
+		for i := 0; i+len(str) < chw*chh; i = i + len(str) {
 			t.PrintString(str)
 		}
 
@@ -76,7 +75,7 @@ func Bit(x, j uint) bool {
 
 func (t *TextArea) print(ch int) {
 
-	startX, startY := t.cursorX*t.CharWidth + t.Border.Thickness, t.cursorY*t.CharHeight + t.Border.Thickness
+	startX, startY := t.cursorX*t.CharWidth+t.Border.Thickness, t.cursorY*t.CharHeight+t.Border.Thickness
 
 	stopX, stopY := startX+t.CharWidth, startY+t.CharHeight
 
@@ -101,7 +100,7 @@ func (t *TextArea) print(ch int) {
 }
 
 func (t *TextArea) height() int {
-	return 	t.Component.Max.Y - t.Component.Min.Y - t.Border.Thickness
+	return t.Component.Max.Y - t.Component.Min.Y - t.Border.Thickness
 }
 
 func (t *TextArea) width() int {
@@ -110,8 +109,8 @@ func (t *TextArea) width() int {
 
 //Advances the cursor to the beginning of the next line.
 func (t *TextArea) println() {
-		t.cursorX = 0
-		t.cursorY++
+	t.cursorX = 0
+	t.cursorY++
 }
 
 func (t *TextArea) PrintChar(ch int) {
