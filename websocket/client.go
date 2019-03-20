@@ -38,7 +38,6 @@ const (
 var (
 	log     = logrus.New()
 	newline = []byte{'\n'}
-	//space   = []byte{' '}
 )
 
 var upgrader = websocket.Upgrader{
@@ -46,7 +45,19 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+type Command struct {
+	Name   string
+	Params []string
+}
+
+func (cmd Command) MakePacket() []byte {
+	return []byte(strings.Join(append([]string{cmd.Name}, cmd.Params...), " "))
+}
+
 type Client struct {
+
+	OnRegister func()
+
 	mutex sync.Mutex
 
 	pending map[uint64]*call
@@ -58,6 +69,12 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+}
+
+func NewClient() *Client {
+	return &Client{
+		pending: make(map[uint64]*call, 1),
+	}
 }
 
 // call represents an active request
@@ -74,43 +91,28 @@ func newCall() *call {
 	}
 }
 
-func New() *Client {
-	return &Client{
-		pending: make(map[uint64]*call, 1),
-	}
-}
+func (client *Client) Request(payload []string) ([]byte, error) {
 
-type Command struct {
-	Name   string
-	Params []string
-}
-
-func (c Command) MakePacket() []byte {
-	return []byte(strings.Join(append([]string{c.Name}, c.Params...), " "))
-}
-
-func (c *Client) Request(payload []string) ([]byte, error) {
-
-	c.mutex.Lock()
-	id := c.counter
-	c.counter++
+	client.mutex.Lock()
+	id := client.counter
+	client.counter++
 	call := newCall()
-	c.pending[id] = call
+	client.pending[id] = call
 
 	params := append([]string{fmt.Sprint(id)}, payload...)
 
-	_, err := c.Write(Command{
+	_, err := client.Write(Command{
 		Name:   "req",
 		Params: params,
 	}.MakePacket())
 
 	if err != nil {
-		delete(c.pending, id)
-		c.mutex.Unlock()
+		delete(client.pending, id)
+		client.mutex.Unlock()
 		return nil, err
 	}
 
-	c.mutex.Unlock()
+	client.mutex.Unlock()
 
 	select {
 	case <-call.done:
@@ -125,42 +127,46 @@ func (c *Client) Request(payload []string) ([]byte, error) {
 	return call.res, nil
 }
 
-func (c *Client) Handler(w http.ResponseWriter, r *http.Request) {
+func (client *Client) Handler(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUpgradeRequired)
 	}
 
-	c.send = make(chan []byte, 256)
-	c.conn = conn
+	client.send = make(chan []byte, 256)
+	client.conn = conn
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
-	go c.writePump()
-	go c.readPump()
+	go client.writePump()
+	go client.readPump()
+
+	if client.OnRegister != nil {
+		go client.OnRegister()
+	}
 
 }
 
-func (c *Client) Write(p []byte) (int, error) {
-	c.send <- p
+func (client *Client) Write(p []byte) (int, error) {
+	client.send <- p
 	return len(p), nil
 }
 
-func (c *Client) Close() error {
-	return c.conn.Close()
+func (client *Client) Close() error {
+	return client.conn.Close()
 }
 
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
-func (c *Client) readPump() {
+func (client *Client) readPump() {
 
-	defer c.Close()
+	defer client.Close()
 
-	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { return c.conn.SetReadDeadline(time.Now().Add(pongWait)) })
+	client.conn.SetReadLimit(maxMessageSize)
+	client.conn.SetReadDeadline(time.Now().Add(pongWait))
+	client.conn.SetPongHandler(func(string) error { return client.conn.SetReadDeadline(time.Now().Add(pongWait)) })
 
 	log.WithFields(logrus.Fields{
 		"readLimit": maxMessageSize,
@@ -170,7 +176,7 @@ func (c *Client) readPump() {
 		select {
 		default:
 
-			_, reader, err := c.conn.NextReader()
+			_, reader, err := client.conn.NextReader()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
 					log.Error(errors.Wrap(err, "error getting next reader"))
@@ -197,12 +203,12 @@ func (c *Client) readPump() {
 
 				res := split[2:]
 
-				c.mutex.Lock()
+				client.mutex.Lock()
 
-				call := c.pending[id]
-				delete(c.pending, id)
+				call := client.pending[id]
+				delete(client.pending, id)
 
-				c.mutex.Unlock()
+				client.mutex.Unlock()
 
 				if call == nil {
 					err = errors.New("no pending request found")
@@ -221,7 +227,7 @@ func (c *Client) readPump() {
 // A goroutine running writePump is started for each connection. The
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
-func (c *Client) writePump() {
+func (client *Client) writePump() {
 
 	ticker := time.NewTicker(pingPeriod)
 
@@ -229,21 +235,21 @@ func (c *Client) writePump() {
 
 	defer func() {
 		ticker.Stop()
-		c.Close()
+		client.Close()
 	}()
 
 	for {
 		select {
-		case message, ok := <-c.send:
+		case message, ok := <-client.send:
 
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			client.conn.SetWriteDeadline(time.Now().Add(writeWait))
 
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				client.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			w, err := c.conn.NextWriter(websocket.TextMessage)
+			w, err := client.conn.NextWriter(websocket.TextMessage)
 
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
@@ -260,10 +266,10 @@ func (c *Client) writePump() {
 			}
 
 			// Add queued messages to the current websocket message.
-			n := len(c.send)
+			n := len(client.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
-				w.Write(<-c.send)
+				w.Write(<-client.send)
 			}
 
 			if err := w.Close(); err != nil {
@@ -272,8 +278,8 @@ func (c *Client) writePump() {
 			}
 
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			client.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := client.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				if !strings.Contains(err.Error(), "use of closed network connection") {
 					log.Error(errors.Wrap(err, "error sending ping"))
 				}

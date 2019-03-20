@@ -1,12 +1,12 @@
-package apps
+package component
 
-type character map[uint]uint
+type character map[int]int
 
-type Mapping map[uint]character
+type Mapping map[int]character
 
-func Init() *Mapping {
+func NewMapping() *Mapping {
 
-	m := Mapping(make(map[uint]character))
+	m := Mapping(make(map[int]character))
 
 	log.Info("initializing character map...")
 
@@ -86,7 +86,7 @@ func Init() *Mapping {
 	return &m
 }
 
-func (m Mapping) Get(i uint) character {
+func (m Mapping) Get(i int) character {
 
 	if i < 32 || i > 126 {
 		i = 0
@@ -100,7 +100,7 @@ func (m Mapping) Get(i uint) character {
 	return m[i]
 }
 
-func (m Mapping) add(index uint, v ...uint) {
+func (m Mapping) add(index int, v ...int) {
 
 	if len(v) < 11 {
 		log.Fatalf("cannot add character %v", index)

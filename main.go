@@ -2,7 +2,11 @@ package main
 
 import (
 	"github.com/Sirupsen/logrus"
+	"github.com/cakesmith/webrender/app"
+	"github.com/cakesmith/webrender/app/font"
 	"github.com/cakesmith/webrender/websocket"
+	"image"
+	"image/draw"
 	"net/http"
 	"os"
 )
@@ -165,7 +169,18 @@ func main() {
 
 	//}
 
-	client := &websocket.Client{
+	client := websocket.NewClient()
+
+	client.OnRegister = func() {
+
+		width := 512
+		height := 330
+
+		//cont := app.Container{
+		//	App: font.Designer{},
+		//}
+
+	}
 
 		//OnRecv: func(cmd []byte) {
 		//	split := strings.Split(string(cmd), " ")
@@ -211,7 +226,7 @@ func main() {
 		//	}
 		//
 		//},
-	}
+
 
 	http.Handle("/", http.FileServer(http.Dir("public/")))
 

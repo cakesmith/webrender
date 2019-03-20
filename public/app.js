@@ -18,7 +18,7 @@ function processCommand(ctx, data) {
             let w = fields[3];
             let h = fields[4];
 
-            ctx.fillStyle = styleFrom(fields[5].split('-'));
+            ctx.fillStyle = styleFrom(fields[5].split(':'));
 
             ctx.fillRect(x, y, w, h);
 
