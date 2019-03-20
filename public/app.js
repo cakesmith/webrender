@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     screen.addEventListener('click', function(e) {
         e.preventDefault();
-        ws.send("mc " + e.button + " " + e.offsetX + " " + (screen.height - e.offsetY))
+        ws.send("mc " + e.button + " " + e.offsetX + " " + e.offsetY)
     });
 
     document.addEventListener('keydown', function(e) {

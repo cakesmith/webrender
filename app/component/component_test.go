@@ -15,7 +15,7 @@ func createContainer(w, h int) (*component.Container, *bytes.Buffer) {
 
 	buf := new(bytes.Buffer)
 	main := component.Container{
-		Rectangle:  image.Rect(0, 0, width, height),
+		Rectangle:  image.Rect(0, 0, w, h),
 		Terminal:   output.Terminal{Writer: buf},
 		Components: []*component.Component{},
 	}
@@ -28,10 +28,9 @@ var redBorder = component.Border{
 }
 
 var blackBorder = component.Border{
-	Color: output.ColorBlack,
+	Color:     output.ColorBlack,
 	Thickness: 2,
 }
-
 
 // focus scenarios:
 //  - single component, default focus
@@ -46,10 +45,9 @@ var blackBorder = component.Border{
 //  - multiple components, multiple selected
 //      selected components should have focus
 
-
 func TestSingleComponentDefaultFocus(t *testing.T) {
 
-	main, _ := createContainer(640, 480)
+	main, _ := createContainer(width, height)
 
 	testButton := component.NewButton(
 		output.ColorTerminalGreen,
@@ -58,7 +56,7 @@ func TestSingleComponentDefaultFocus(t *testing.T) {
 		200,
 		50,
 		75,
-		)
+	)
 
 	main.Add(testButton.Component)
 
@@ -74,12 +72,11 @@ func TestSingleComponentDefaultFocus(t *testing.T) {
 		t.Errorf("expected 56 received %v", keyPressed)
 	}
 
-
 }
 
 func TestSingleComponentSetFocus(t *testing.T) {
 
-	main, _ := createContainer(640, 480)
+	main, _ := createContainer(width, height)
 
 	testButton := component.NewButton(
 		output.ColorTerminalGreen,
@@ -88,7 +85,7 @@ func TestSingleComponentSetFocus(t *testing.T) {
 		200,
 		50,
 		75,
-		)
+	)
 
 	main.Add(testButton.Component)
 
@@ -108,12 +105,11 @@ func TestSingleComponentSetFocus(t *testing.T) {
 		t.Errorf("expected 56 received %v", keyPressed)
 	}
 
-
 }
 
 func TestMultipleComponentsDefaultFocus(t *testing.T) {
 
-	main, _ := createContainer(640, 480)
+	main, _ := createContainer(width, height)
 
 	testButton1 := component.NewButton(
 		output.ColorTerminalGreen,
@@ -131,7 +127,7 @@ func TestMultipleComponentsDefaultFocus(t *testing.T) {
 		300,
 		50,
 		75,
-		)
+	)
 
 	main.Add(testButton1.Component)
 	main.Add(testButton2.Component)
@@ -156,12 +152,11 @@ func TestMultipleComponentsDefaultFocus(t *testing.T) {
 		t.Errorf("keypress 2 expected 56 received %v", keyPressed1)
 	}
 
-
 }
 
 func TestMultipleComponentsSingleFocus(t *testing.T) {
 
-	main, _ := createContainer(640, 480)
+	main, _ := createContainer(width, height)
 
 	testButton1 := component.NewButton(
 		output.ColorTerminalGreen,
@@ -179,7 +174,7 @@ func TestMultipleComponentsSingleFocus(t *testing.T) {
 		300,
 		50,
 		75,
-		)
+	)
 
 	main.Add(testButton1.Component)
 	main.Add(testButton2.Component)
@@ -212,7 +207,7 @@ func TestMultipleComponentsSingleFocus(t *testing.T) {
 
 func TestMultipleComponentsMultipleFocus(t *testing.T) {
 
-	main, _ := createContainer(640, 480)
+	main, _ := createContainer(width, height)
 
 	testButton1 := component.NewButton(
 		output.ColorTerminalGreen,
@@ -230,7 +225,7 @@ func TestMultipleComponentsMultipleFocus(t *testing.T) {
 		300,
 		50,
 		75,
-		)
+	)
 
 	testButton3 := component.NewButton(
 		output.ColorBackground,
@@ -239,7 +234,7 @@ func TestMultipleComponentsMultipleFocus(t *testing.T) {
 		400,
 		50,
 		75,
-		)
+	)
 
 	main.Add(testButton1.Component)
 	main.Add(testButton2.Component)
@@ -280,7 +275,7 @@ func TestMultipleComponentsMultipleFocus(t *testing.T) {
 }
 
 func TestNoKeyHandler(t *testing.T) {
-	main, _ := createContainer(640, 480)
+	main, _ := createContainer(width, height)
 
 	testButton := component.NewButton(
 		output.ColorTerminalGreen,
@@ -299,11 +294,10 @@ func TestNoKeyHandler(t *testing.T) {
 
 	main.OnKeypress(58)
 
-
 }
 
 func TestMultipleButtons(t *testing.T) {
-	main, _ := createContainer(640, 480)
+	main, _ := createContainer(width, height)
 
 	testButton1 := component.NewButton(output.ColorTerminalGreen, redBorder, 100, 200, 50, 75)
 	testButton2 := component.NewButton(output.ColorRed, blackBorder, 200, 300, 50, 75)
@@ -344,14 +338,13 @@ func TestMultipleButtons(t *testing.T) {
 	rst()
 
 	main.OnClick(2, 580, 380)
-	chk(0,0,0,0,0,0)
-
+	chk(0, 0, 0, 0, 0, 0)
 
 }
 
 func TestButton(t *testing.T) {
 
-	main, buf := createContainer(640, 480)
+	main, buf := createContainer(width, height)
 
 	testButton := component.NewButton(output.ColorTerminalGreen, redBorder, 100, 200, 50, 75)
 
@@ -390,7 +383,7 @@ func TestButton(t *testing.T) {
 	//r 100 200 150 275 200:0:0:0
 	//r 101 201 149 274 51:255:51:0
 
-	expected := "r 100 200 150 275 200:0:0:0r 101 201 149 274 51:255:51:0"
+	expected := "r 100 200 150 275 200:0:0:0r 101 201 148 273 51:255:51:0"
 	if cmdstr != expected {
 		t.Errorf("expected\n%v\nreceived\n%v", expected, cmdstr)
 	}
@@ -419,5 +412,9 @@ func TestButton(t *testing.T) {
 	if keyPressed != 55 {
 		t.Errorf("expected 55 received %v", keyPressed)
 	}
+
+}
+
+func TestSubComponents(t *testing.T) {
 
 }

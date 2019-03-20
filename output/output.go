@@ -3,6 +3,7 @@ package output
 import (
 	"fmt"
 	"github.com/cakesmith/webrender/websocket"
+	"image"
 	"image/color"
 	"io"
 	"strings"
@@ -31,7 +32,7 @@ var (
 )
 
 type Drawer interface {
-	DrawRectangle(xy, y1, w, h int, rgba color.RGBA)
+	DrawRectangle(rectangle image.Rectangle, rgba color.RGBA)
 	//DrawVert(x, y1, y2 int, rgba color.RGBA)
 	//DrawHoriz(x1, x2, y int, rgba color.RGBA)
 	//DrawPixel(x, y int, rgba color.RGBA)
@@ -43,18 +44,21 @@ type Terminal struct {
 	io.Writer
 }
 
-func (t *Terminal) Set(x, y int, c color.Color) {
-	t.DrawRectangle(x, y, 1, 1, c)
-}
+//func (t *Terminal) Set(x, y int, c color.Color) {
+//	t.DrawRectangle(x, y, 1, 1, c)
+//}
 
-func (t *Terminal) DrawRectangle(x1, y1, w, h int, c color.Color) {
+func (t *Terminal) DrawRectangle(rect image.Rectangle, c color.Color) {
 	r, g, b, a := c.RGBA()
 	r8 := uint8(r)
 	g8 := uint8(g)
 	b8 := uint8(b)
 	a8 := uint8(a)
 
-	str := fmt.Sprintf("%v %v %v %v %v:%v:%v:%v", x1, y1, w, h, r8, g8, b8, a8)
+	w := rect.Max.X - rect.Min.X
+	h := rect.Max.Y - rect.Min.Y
+
+	str := fmt.Sprintf("%v %v %v %v %v:%v:%v:%v", rect.Min.X, rect.Min.Y, w, h, r8, g8, b8, a8)
 	t.Writer.Write(websocket.Command{
 		Name:   "r",
 		Params: strings.Split(str, " "),

@@ -6,6 +6,7 @@ import (
 	"github.com/cakesmith/webrender/output"
 	"image"
 	"image/color"
+	"sync"
 )
 
 var (
@@ -29,6 +30,7 @@ type Initializable interface {
 //}
 
 type Container struct {
+	sync.Mutex
 	image.Rectangle
 	Components []*Component
 	Focused    []*Component
@@ -37,6 +39,7 @@ type Container struct {
 }
 
 func (container *Container) Add(component *Component) {
+
 	if container.Components == nil {
 		container.Components = []*Component{}
 	}
@@ -44,6 +47,7 @@ func (container *Container) Add(component *Component) {
 }
 
 func (container *Container) Init() {
+
 	for _, comp := range container.Components {
 		comp.Container = container
 		comp.Init()
@@ -51,7 +55,7 @@ func (container *Container) Init() {
 }
 
 func (container *Container) OnKeypress(key int) {
-	if container.Focused != nil  && len(container.Focused) > 0 {
+	if container.Focused != nil && len(container.Focused) > 0 {
 		for _, f := range container.Focused {
 			if f.OnKeypress != nil {
 				f.OnKeypress(key)
@@ -85,6 +89,7 @@ func (container *Container) OnClick(btn, x, y int) {
 }
 
 type Component struct {
+	Components []Component
 	image.Rectangle
 	color.Color
 	*Container
@@ -94,17 +99,17 @@ type Component struct {
 	Draw       func()
 }
 
-func (component *Component) Set(x, y int, color color.Color) {
-	if (image.Point{X: x, Y: y}).In(component.Bounds()) {
-		dx := x + component.Bounds().Min.X
-		dy := y + component.Bounds().Min.Y
-		component.Container.Set(dx, dy, color)
-	}
-}
+//func (component *Component) Set(x, y int, color color.Color) {
+//	if (image.Point{X: x, Y: y}).In(component.Bounds()) {
+//		dx := x + component.Bounds().Min.X
+//		dy := y + component.Bounds().Min.Y
+//		component.Container.Set(dx, dy, color)
+//	}
+//}
 
-func (component *Component) DrawRectangle(x1, y1, w, h int, c color.Color) {
-	component.Container.DrawRectangle(x1, y1, w, h, c)
-}
+//func (component *Component) DrawRectangle(rect image.Rectangle, c color.Color) {
+//	component.Container.DrawRectangle(rect, c)
+//}
 
 type Border struct {
 	color.Color

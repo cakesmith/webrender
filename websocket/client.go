@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -40,6 +39,14 @@ var (
 	newline = []byte{'\n'}
 )
 
+type Receiver interface {
+	OnRecv([]byte)
+}
+
+type Registrar interface {
+	OnRegister()
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -50,12 +57,17 @@ type Command struct {
 	Params []string
 }
 
+// This format is used for a fire and forget command
 func (cmd Command) MakePacket() []byte {
-	return []byte(strings.Join(append([]string{cmd.Name}, cmd.Params...), " "))
+	return []byte(strings.Join(cmd.MakePayload(), " "))
+}
+
+// This format is used for a Request command
+func (cmd Command) MakePayload() []string {
+	return append([]string{cmd.Name}, cmd.Params...)
 }
 
 type Client struct {
-	OnRegister func()
 
 	mutex sync.Mutex
 
@@ -70,6 +82,11 @@ type Client struct {
 	send chan []byte
 }
 
+type Message struct {
+	*Client
+	Data []byte
+}
+
 func NewClient() *Client {
 	return &Client{
 		pending: make(map[uint64]*call, 1),
@@ -81,6 +98,11 @@ type call struct {
 	res   []byte
 	done  chan bool
 	Error error
+}
+
+type Actions interface {
+	OnRecv([]byte)
+	OnRegister()
 }
 
 func newCall() *call {
@@ -126,25 +148,26 @@ func (client *Client) Request(payload []string) ([]byte, error) {
 	return call.res, nil
 }
 
-func (client *Client) Handler(w http.ResponseWriter, r *http.Request) {
+func (client *Client) MakeHandler(actions Actions) http.HandlerFunc {
 
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUpgradeRequired)
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUpgradeRequired)
+		}
+
+		client.send = make(chan []byte, 256)
+		client.conn = conn
+
+		// Allow collection of memory referenced by the caller by doing all work in
+		// new goroutines.
+		go client.writePump()
+		go client.readPump(actions.OnRecv)
+
+		go actions.OnRegister()
+
 	}
-
-	client.send = make(chan []byte, 256)
-	client.conn = conn
-
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
-	go client.writePump()
-	go client.readPump()
-
-	if client.OnRegister != nil {
-		go client.OnRegister()
-	}
-
 }
 
 func (client *Client) Write(p []byte) (int, error) {
@@ -159,7 +182,7 @@ func (client *Client) Close() error {
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
-func (client *Client) readPump() {
+func (client *Client) readPump(onrecv func([]byte)) {
 
 	defer client.Close()
 
@@ -191,33 +214,37 @@ func (client *Client) readPump() {
 
 			logrus.WithField("msg", string(message)).Info("received")
 
-			split := strings.Split(string(message), " ")
+			onrecv(message)
 
-			// see if this is a response
-			if split[0] == "res" {
-				id, err := strconv.ParseUint(split[1], 10, 64)
-				if err != nil {
-					log.Error(err)
-				}
-
-				res := split[2:]
-
-				client.mutex.Lock()
-
-				call := client.pending[id]
-				delete(client.pending, id)
-
-				client.mutex.Unlock()
-
-				if call == nil {
-					err = errors.New("no pending request found")
-					continue
-				}
-
-				call.res = []byte(strings.Join(res, " "))
-				call.done <- true
-
-			}
+			//split := strings.Split(string(message), " ")
+			//
+			//// see if this is a response
+			//if split[0] == "res" {
+			//	id, err := strconv.ParseUint(split[1], 10, 64)
+			//	if err != nil {
+			//		log.Error(err)
+			//	}
+			//
+			//	res := split[2:]
+			//
+			//	client.mutex.Lock()
+			//
+			//	call := client.pending[id]
+			//	delete(client.pending, id)
+			//
+			//	client.mutex.Unlock()
+			//
+			//	if call == nil {
+			//		err = errors.New("no pending request found")
+			//		continue
+			//	}
+			//
+			//	call.res = []byte(strings.Join(res, " "))
+			//	call.done <- true
+			//
+			//} else {
+			//	go onrecv(message)
+			//}
 
 		}
 	}
