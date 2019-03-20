@@ -16,26 +16,22 @@ type Drawable interface {
 	Draw()
 }
 
-type Composable interface {
-	GetComponents() []Component
-}
-
 type Initializable interface {
 	Init()
 }
 
-type Focusable interface {
-	OnKeypress(key int)
-}
-
-type Clickable interface {
-	OnClick(btn, x, y int)
-}
+//type Focusable interface {
+//	OnKeypress(key int)
+//}
+//
+//type Clickable interface {
+//	OnClick(btn, x, y int)
+//}
 
 type Container struct {
 	image.Rectangle
 	Components []*Component
-	Focused    Focusable
+	Focused    []*Component
 	state.Stateful
 	output.Terminal
 }
@@ -55,8 +51,12 @@ func (container *Container) Init() {
 }
 
 func (container *Container) OnKeypress(key int) {
-	if container.Focused != nil {
-		container.Focused.OnKeypress(key)
+	if container.Focused != nil  && len(container.Focused) > 0 {
+		for _, f := range container.Focused {
+			if f.OnKeypress != nil {
+				f.OnKeypress(key)
+			}
+		}
 	} else {
 		for _, comp := range container.Components {
 			if comp.OnKeypress != nil {
