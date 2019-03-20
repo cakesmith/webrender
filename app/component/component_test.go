@@ -15,8 +15,8 @@ func createContainer(w, h int) (*component.Container, *bytes.Buffer) {
 
 	buf := new(bytes.Buffer)
 	main := component.Container{
-		Rectangle:  image.Rect(0, 0, w, h),
-		Terminal:   output.Terminal{Writer: buf},
+		Rectangle: image.Rect(0, 0, w, h),
+		Terminal:  output.Terminal{Writer: buf},
 	}
 	return &main, buf
 }

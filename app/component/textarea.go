@@ -3,6 +3,7 @@ package component
 import (
 	"image"
 	"image/color"
+	"math"
 )
 
 type TextArea struct {
@@ -34,6 +35,8 @@ func NewTextArea(backgroundColor color.Color, textColor color.Color, border Bord
 
 	t.Init = func() {
 
+		//***** TEST PATTERN *****
+
 		chw := t.width() / t.CharWidth
 		chh := t.height() / t.CharHeight
 
@@ -44,6 +47,14 @@ func NewTextArea(backgroundColor color.Color, textColor color.Color, border Bord
 		for i := 0; i+len(str) < chw*chh; i = i + len(str) {
 			t.PrintString(str)
 		}
+
+		end := chw - t.cursorX
+
+		for i := 0; i < end; i++ {
+			t.PrintString(str[i:i+1])
+		}
+
+		//************************
 
 	}
 
@@ -75,7 +86,10 @@ func Bit(x, j uint) bool {
 
 func (t *TextArea) print(ch int) {
 
-	startX, startY := t.cursorX*t.CharWidth+t.Border.Thickness, t.cursorY*t.CharHeight+t.Border.Thickness
+	padX := int(math.Mod(float64(t.width()), float64(t.CharWidth))/2)
+	padY := int(math.Mod(float64(t.height()), float64(t.CharHeight))/2)
+
+	startX, startY := t.cursorX*t.CharWidth+t.Border.Thickness + padX, t.cursorY*t.CharHeight+t.Border.Thickness + padY
 
 	stopX, stopY := startX+t.CharWidth, startY+t.CharHeight
 
