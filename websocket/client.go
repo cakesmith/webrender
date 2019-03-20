@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
+	"github.com/rs/xid"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -68,10 +69,9 @@ func (cmd Command) MakePayload() []string {
 }
 
 type Client struct {
-
 	mutex sync.Mutex
 
-	pending map[uint64]*call
+	pending map[string]*call
 
 	counter uint64
 
@@ -89,7 +89,7 @@ type Message struct {
 
 func NewClient() *Client {
 	return &Client{
-		pending: make(map[uint64]*call, 1),
+		pending: make(map[string]*call, 1),
 	}
 }
 
@@ -114,13 +114,13 @@ func newCall() *call {
 
 func (client *Client) Request(payload []string) ([]byte, error) {
 
-	client.mutex.Lock()
-	id := client.counter
-	client.counter++
-	call := newCall()
-	client.pending[id] = call
+	guid := xid.New().String()
 
-	params := append([]string{fmt.Sprint(id)}, payload...)
+	client.mutex.Lock()
+	call := newCall()
+	client.pending[guid] = call
+
+	params := append([]string{fmt.Sprint(guid)}, payload...)
 
 	_, err := client.Write(Command{
 		Name:   "req",
@@ -128,7 +128,7 @@ func (client *Client) Request(payload []string) ([]byte, error) {
 	}.MakePacket())
 
 	if err != nil {
-		delete(client.pending, id)
+		delete(client.pending, guid)
 		client.mutex.Unlock()
 		return nil, err
 	}
@@ -142,6 +142,9 @@ func (client *Client) Request(payload []string) ([]byte, error) {
 	}
 
 	if call.Error != nil {
+		client.mutex.Lock()
+		delete(client.pending, guid)
+		client.mutex.Unlock()
 		return nil, call.Error
 	}
 
@@ -165,7 +168,7 @@ func (client *Client) MakeHandler(actions Actions) http.HandlerFunc {
 		go client.writePump()
 		go client.readPump(actions.OnRecv)
 
-		go actions.OnRegister()
+		actions.OnRegister()
 
 	}
 }
@@ -214,37 +217,34 @@ func (client *Client) readPump(onrecv func([]byte)) {
 
 			logrus.WithField("msg", string(message)).Info("received")
 
-			onrecv(message)
 
-			//split := strings.Split(string(message), " ")
-			//
-			//// see if this is a response
-			//if split[0] == "res" {
-			//	id, err := strconv.ParseUint(split[1], 10, 64)
-			//	if err != nil {
-			//		log.Error(err)
-			//	}
-			//
-			//	res := split[2:]
-			//
-			//	client.mutex.Lock()
-			//
-			//	call := client.pending[id]
-			//	delete(client.pending, id)
-			//
-			//	client.mutex.Unlock()
-			//
-			//	if call == nil {
-			//		err = errors.New("no pending request found")
-			//		continue
-			//	}
-			//
-			//	call.res = []byte(strings.Join(res, " "))
-			//	call.done <- true
-			//
-			//} else {
-			//	go onrecv(message)
-			//}
+			split := strings.Split(string(message), " ")
+
+			// see if this is a response
+			if split[0] == "res" {
+
+				id := string(split[1])
+
+				res := split[2:]
+
+				client.mutex.Lock()
+
+				call := client.pending[id]
+				delete(client.pending, id)
+
+				client.mutex.Unlock()
+
+				if call == nil {
+					err = errors.New("no pending request found")
+					continue
+				}
+
+				call.res = []byte(strings.Join(res, " "))
+				call.done <- true
+
+			} else {
+				go onrecv(message)
+			}
 
 		}
 	}

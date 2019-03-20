@@ -4,7 +4,7 @@ function styleFrom(rgb) {
  return "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
 }
 
-function processCommand(ctx, data) {
+function processCommand(ctx, data, ws) {
 
     let fields = data.split(" ");
     let command = fields[0];
@@ -32,14 +32,14 @@ function processCommand(ctx, data) {
             switch(fields[2]) {
 
                 case "h":
-                    let height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+                    let height = getHeight();
 
                     ws.send("res " + id + " " + height);
                     
                     break;
 
                 case "w":
-                    let width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+                    let width = getWidth();
 
                     ws.send("res " + id + " " + width);
 
@@ -52,10 +52,23 @@ function processCommand(ctx, data) {
 }
 
 
+function getHeight() {
+    let height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    return height - 2
+}
+
+function getWidth() {
+    let width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    return width - 2
+}
+
 document.addEventListener("DOMContentLoaded", function() {
 
 
     let screen = document.getElementById('screen');
+
+    screen.height = getHeight();
+    screen.width = getWidth();
 
     let ctx = screen.getContext('2d');
 
@@ -65,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     ws.onopen = function(){
         console.log('connected!');
-        ws.send("d " + width + " " + height )
     };
 
     ws.onmessage = function(e){
@@ -73,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let commands = e.data.split('\n');
 
         commands.forEach(function(data) {
-            processCommand(ctx, data)
+            processCommand(ctx, data, ws)
         })
 
     };

@@ -2,7 +2,7 @@ package component
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/cakesmith/webrender/app/container"
+	"github.com/cakesmith/webrender/app/state"
 	"github.com/cakesmith/webrender/output"
 	"image"
 	"image/color"
@@ -21,18 +21,10 @@ type Initializable interface {
 	Init()
 }
 
-//type Focusable interface {
-//	OnKeypress(key int)
-//}
-//
-//type Clickable interface {
-//	OnClick(btn, x, y int)
-//}
-
 type Container struct {
 	sync.Mutex
 	image.Rectangle
-	Components []*Component
+	components []*Component
 	Focused    []*Component
 	state.Stateful
 	output.Terminal
@@ -40,16 +32,25 @@ type Container struct {
 
 func (container *Container) Add(component *Component) {
 
-	if container.Components == nil {
-		container.Components = []*Component{}
+	if container.components == nil {
+		container.components = []*Component{}
 	}
-	container.Components = append(container.Components, component)
+
+	container.components = append(container.components, component)
+	component.Container = container
+
+	component.Draw()
+	component.Init()
+}
+
+func (container *Container) Draw() {
+	for _, comp := range container.components {
+		comp.Draw()
+	}
 }
 
 func (container *Container) Init() {
-
-	for _, comp := range container.Components {
-		comp.Container = container
+	for _, comp := range container.components {
 		comp.Init()
 	}
 }
@@ -62,7 +63,7 @@ func (container *Container) OnKeypress(key int) {
 			}
 		}
 	} else {
-		for _, comp := range container.Components {
+		for _, comp := range container.components {
 			if comp.OnKeypress != nil {
 				comp.OnKeypress(key)
 			}
@@ -71,7 +72,7 @@ func (container *Container) OnKeypress(key int) {
 }
 
 func (container *Container) OnClick(btn, x, y int) {
-	for _, comp := range container.Components {
+	for _, comp := range container.components {
 
 		bounds := comp.Bounds()
 
@@ -89,7 +90,6 @@ func (container *Container) OnClick(btn, x, y int) {
 }
 
 type Component struct {
-	Components []Component
 	image.Rectangle
 	color.Color
 	*Container
@@ -98,18 +98,6 @@ type Component struct {
 	OnClick    func(btn, x, y int)
 	Draw       func()
 }
-
-//func (component *Component) Set(x, y int, color color.Color) {
-//	if (image.Point{X: x, Y: y}).In(component.Bounds()) {
-//		dx := x + component.Bounds().Min.X
-//		dy := y + component.Bounds().Min.Y
-//		component.Container.Set(dx, dy, color)
-//	}
-//}
-
-//func (component *Component) DrawRectangle(rect image.Rectangle, c color.Color) {
-//	component.Container.DrawRectangle(rect, c)
-//}
 
 type Border struct {
 	color.Color

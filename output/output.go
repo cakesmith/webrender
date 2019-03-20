@@ -35,7 +35,7 @@ type Drawer interface {
 	DrawRectangle(rectangle image.Rectangle, rgba color.RGBA)
 	//DrawVert(x, y1, y2 int, rgba color.RGBA)
 	//DrawHoriz(x1, x2, y int, rgba color.RGBA)
-	//DrawPixel(x, y int, rgba color.RGBA)
+	DrawPixel(x, y int, rgba color.RGBA)
 	//DrawLine(x1, y1, x2, y2 int, rgba color.RGBA)
 	//DrawCircle(cx, cy, r int, rgba color.RGBA)
 }
@@ -80,9 +80,9 @@ func (t *Terminal) DrawRectangle(rect image.Rectangle, c color.Color) {
 //	return t.DrawRectangle(x1, y, x2-x1, 1, color)
 //}
 //
-//func (t *Terminal) DrawPixel(x, y int, color color.Color)  {
-//	t.drawRectangle(x, y, 1, 1, color)
-//}
+func (t *Terminal) DrawPixel(x, y int, color color.Color)  {
+	t.DrawRectangle(image.Rect(x, y, x+1, y+1), color)
+}
 //
 //func (t *Terminal) DrawLine(x1, y1, x2, y2 int, color color.Color) error {
 //
