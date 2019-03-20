@@ -379,11 +379,8 @@ func TestButton(t *testing.T) {
 	// init should be called
 
 	// draw should be called twice
-	//
-	//r 100 200 150 275 200:0:0:0
-	//r 101 201 149 274 51:255:51:0
 
-	expected := "r 100 200 150 275 200:0:0:0r 101 201 148 273 51:255:51:0"
+	expected := "r 100 200 50 75 200:0:0:0r 101 201 48 73 51:255:51:0"
 	if cmdstr != expected {
 		t.Errorf("expected\n%v\nreceived\n%v", expected, cmdstr)
 	}
