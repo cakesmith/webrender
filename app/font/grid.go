@@ -15,14 +15,13 @@ type Cell struct {
 
 type Grid struct {
 	component.Component
-	Background            color.RGBA
+	GridColor            color.RGBA
 	CharWidth, CharHeight int
 	bitmap                map[int]map[int]*Cell
 }
 
 func (g *Grid) Init() {
 	g.bitmap = make(map[int]map[int]*Cell)
-	g.Draw()
 }
 
 func (g *Grid) String() string {

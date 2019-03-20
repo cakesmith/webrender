@@ -10,14 +10,13 @@ type TextArea struct {
 	*Component
 	Border
 	TextColor             color.Color
-	cursorX, cursorY      int
+	CursorX, CursorY      int
 	CharWidth, CharHeight int
 	CharMap               *Mapping
+	Buffer []int
 }
 
 func NewTextArea(backgroundColor color.Color, textColor color.Color, border Border, charWidth, charHeight, x, y, w, h int) *TextArea {
-
-	buf := []int{}
 
 	t := &TextArea{
 		Component: &Component{
@@ -33,49 +32,6 @@ func NewTextArea(backgroundColor color.Color, textColor color.Color, border Bord
 		CharMap:    NewMapping(),
 	}
 
-	t.Init = func() {
-
-		//***** TEST PATTERN *****
-
-		chw := t.width() / t.CharWidth
-		chh := t.height() / t.CharHeight
-
-		str := "ALL WORK AND NO PLAY MAKES JACK A DULL BOY. "
-
-		log.Println(str)
-
-		for i := 0; i+len(str) < chw*chh; i = i + len(str) {
-			t.PrintString(str)
-		}
-
-		end := chw - t.cursorX
-
-		for i := 0; i < end; i++ {
-			t.PrintString(str[i:i+1])
-		}
-
-		//************************
-
-	}
-
-	t.Draw = func() {
-
-		t.DrawRectangle(t.Component.Rectangle, t.Border.Color)
-		t.DrawRectangle(t.Component.Rectangle.Inset(t.Border.Thickness), t.Component.Color)
-
-		t.cursorX, t.cursorY = 0, 0
-
-		for _, chr := range buf {
-			t.PrintChar(chr)
-		}
-	}
-
-	t.OnKeypress = func(key int) {
-		log.WithField("key", key)
-		buf = append(buf, key)
-		t.PrintChar(key)
-	}
-
 	return t
 }
 
@@ -84,12 +40,18 @@ func Bit(x, j uint) bool {
 	return !(x&(1<<j) == 0)
 }
 
-func (t *TextArea) print(ch int) {
+func (t *TextArea) _print(ch int) {
 
-	padX := int(math.Mod(float64(t.width()), float64(t.CharWidth))/2)
-	padY := int(math.Mod(float64(t.height()), float64(t.CharHeight))/2)
+	//TODO determine where this padding should live
+	// because it's part of the calculations here, it
+	// can change the value of the true height/width of
+	// this component.
+	//
 
-	startX, startY := t.cursorX*t.CharWidth+t.Border.Thickness + padX, t.cursorY*t.CharHeight+t.Border.Thickness + padY
+	padX := int(math.Mod(float64(t.Width()), float64(t.CharWidth)) / 2)
+	padY := int(math.Mod(float64(t.Height()), float64(t.CharHeight)) / 2)
+
+	startX, startY := t.CursorX*t.CharWidth+t.Border.Thickness+padX, t.CursorY*t.CharHeight+t.Border.Thickness+padY
 
 	stopX, stopY := startX+t.CharWidth, startY+t.CharHeight
 
@@ -113,32 +75,32 @@ func (t *TextArea) print(ch int) {
 
 }
 
-func (t *TextArea) height() int {
+func (t *TextArea) Height() int {
 	return t.Component.Max.Y - t.Component.Min.Y - t.Border.Thickness
 }
 
-func (t *TextArea) width() int {
+func (t *TextArea) Width() int {
 	return t.Component.Max.X - t.Component.Min.X - t.Border.Thickness
 }
 
 //Advances the cursor to the beginning of the next line.
-func (t *TextArea) println() {
-	t.cursorX = 0
-	t.cursorY++
+func (t *TextArea) PrintLn() {
+	t.CursorX = 0
+	t.CursorY++
 }
 
 func (t *TextArea) PrintChar(ch int) {
 
-	if !(t.cursorX < t.width()/t.CharWidth) {
-		if t.cursorY < t.height()/t.CharHeight {
-			t.println()
+	if !(t.CursorX < t.Width()/t.CharWidth) {
+		if t.CursorY < t.Height()/t.CharHeight {
+			t.PrintLn()
 		} else {
-			t.cursorX, t.cursorY = 0, 0
+			t.CursorX, t.CursorY = 0, 0
 		}
 	}
 
-	t.print(ch)
-	t.cursorX++
+	t._print(ch)
+	t.CursorX++
 }
 
 func (t *TextArea) PrintString(str string) {

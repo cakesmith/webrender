@@ -43,6 +43,51 @@ func main() {
 
 		ta := component.NewTextArea(output.ColorBackground, output.ColorTerminalGreen, taBorder, 8, 11, 0, 0, main.Container.Max.X, main.Container.Max.Y)
 
+		ta.Init = func() {
+
+			ta.Buffer = []int{}
+
+			//***** TEST PATTERN *****
+
+			chw := ta.Width() / ta.CharWidth
+			chh := ta.Height() / ta.CharHeight
+
+			str := "ALL WORK AND NO PLAY MAKES JACK A DULL BOY. "
+
+			log.Println(str)
+
+			for i := 0; i+len(str) < chw*chh; i = i + len(str) {
+				ta.PrintString(str)
+			}
+
+			end := chw - ta.CursorX
+
+			for i := 0; i < end; i++ {
+				ta.PrintString(str[i : i+1])
+			}
+
+			//************************
+
+		}
+
+		ta.Draw = func() {
+
+			ta.DrawRectangle(ta.Component.Rectangle, ta.Border.Color)
+			ta.DrawRectangle(ta.Component.Rectangle.Inset(ta.Border.Thickness), ta.Component.Color)
+
+			ta.CursorX, ta.CursorY = 0, 0
+
+			for _, chr := range ta.Buffer {
+				ta.PrintChar(chr)
+			}
+		}
+
+		ta.OnKeypress = func(key int) {
+			log.WithField("key", key)
+			ta.Buffer = append(ta.Buffer, key)
+			ta.PrintChar(key)
+		}
+		
 		main.Add(ta.Component)
 
 	})
