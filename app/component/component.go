@@ -39,8 +39,10 @@ func (container *Container) Add(component *Component) {
 	container.components = append(container.components, component)
 	component.Container = container
 
-	component.Draw()
-	component.Init()
+	if component.Init != nil {
+		component.Init()
+	}
+
 }
 
 func (container *Container) Draw() {
@@ -97,6 +99,14 @@ type Component struct {
 	OnKeypress func(key int)
 	OnClick    func(btn, x, y int)
 	Draw       func()
+}
+
+func (comp *Component) Width() int {
+	return comp.Rectangle.Max.X - comp.Rectangle.Min.X
+}
+
+func (comp *Component) Height() int {
+	return comp.Rectangle.Max.Y - comp.Rectangle.Min.Y
 }
 
 type Border struct {

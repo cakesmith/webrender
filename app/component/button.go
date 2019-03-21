@@ -24,7 +24,9 @@ func NewButton(color color.Color, border Border, x, y, width, height int) *Butto
 		b.Draw()
 	}
 
-	b.Component.Init = func() {}
+	b.Component.Init = func() {
+		b.Draw()
+	}
 
 	return &b
 }

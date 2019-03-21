@@ -1,47 +1,120 @@
 package font
 
 import (
+	"fmt"
 	"github.com/cakesmith/webrender/app/component"
+	"image"
 	"image/color"
-	"strconv"
-	"strings"
 )
 
 type Cell struct {
-	component.Component
-	Background color.RGBA
+	*component.Component
+	Background color.Color
 	active     bool
 }
 
-type Grid struct {
-	component.Component
-	GridColor            color.RGBA
-	CharWidth, CharHeight int
-	bitmap                map[int]map[int]*Cell
-}
+func NewCell(bounds image.Rectangle, background, c color.Color) *Cell {
 
-func (g *Grid) Init() {
-	g.bitmap = make(map[int]map[int]*Cell)
-}
-
-func (g *Grid) String() string {
-
-	var n []string
-
-	for y := 0; y < g.CharHeight; y++ {
-
-		var ch byte
-
-		for x := 0; x < g.CharWidth; x++ {
-
-			if g.bitmap[y][x].active {
-				ch = ch | (1 << uint(x))
-			}
-
-		}
-
-		n = append(n, strconv.Itoa(int(ch)))
+	cell := &Cell{
+		Component:  &component.Component{
+			Rectangle:  bounds,
+			Color:      c,
+			Init:       nil,
+			OnKeypress: nil,
+		},
+		Background: background,
+		active:     false,
 	}
 
-	return strings.Join(n, ", ")
+	cell.Init = func() {
+		cell.Draw()
+	}
+
+	cell.Draw = func() {
+		var c color.Color
+		if cell.active {
+			c = cell.Component.Color
+		} else {
+			c = cell.Background
+		}
+		cell.DrawRectangle(cell.Component.Rectangle, c)
+	}
+
+	cell.OnClick = func(btn, x, y int) {
+		cell.active = !cell.active
+		cell.Draw()
+	}
+
+	return cell
+}
+
+type Grid struct {
+	*component.Component
+	Background             color.Color
+	CharWidth, CharHeight int
+}
+
+type GridOptions struct {
+
+	CellWidth,
+	CellHeight,
+	XCells,
+	YCells,
+	X,
+	Y,
+	Thickness int
+
+	BackgroundColor,
+	LineColor,
+	ActiveColor color.Color
+}
+
+//NewGrid creates a new grid
+//xCells = number of cells wide
+//yCells = number of cells tall
+//(x, y) is the top left point of the grid
+//thickness is the thickness of the grid lines
+func NewGrid(g GridOptions) *Grid {
+
+	width := g.CellWidth * g.XCells
+	height := g.CellHeight * g.YCells
+
+	grid := &Grid{
+		Component:  &component.Component{
+			Rectangle:  image.Rect(g.X, g.Y, g.X + width, g.Y + height),
+			Color:      g.LineColor,
+		},
+		Background: g.BackgroundColor,
+		CharWidth:  0,
+		CharHeight: 0,
+	}
+
+	grid.Init = func() {
+
+		numCells := g.XCells * g.YCells
+
+		for y := 0; y < g.YCells; y++ {
+			for x := 0; x < g.XCells; x++ {
+
+				cx := x * g.CellWidth
+				cy := y * g.CellHeight
+
+				bounds := image.Rect(cx, cy, cx +g.CellWidth, cy +g.CellHeight)
+				cell := NewCell(bounds, g.BackgroundColor, g.ActiveColor)
+				grid.Container.Add(cell.Component)
+
+			}
+		}
+
+		fmt.Println(numCells)
+
+		//grid.Draw()
+
+	}
+
+	return grid
+}
+
+func (grid *Grid) String() string {
+	return "not implemented"
 }

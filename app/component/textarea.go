@@ -13,7 +13,7 @@ type TextArea struct {
 	CursorX, CursorY      int
 	CharWidth, CharHeight int
 	CharMap               *Mapping
-	Buffer []int
+	Buffer                []int
 }
 
 func NewTextArea(backgroundColor color.Color, textColor color.Color, border Border, charWidth, charHeight, x, y, w, h int) *TextArea {

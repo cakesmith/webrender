@@ -31,10 +31,12 @@ var (
 	}
 )
 
+
+// Dead code
 type Drawer interface {
 	DrawRectangle(rectangle image.Rectangle, rgba color.RGBA)
-	//DrawVert(x, y1, y2 int, rgba color.RGBA)
-	//DrawHoriz(x1, x2, y int, rgba color.RGBA)
+	DrawVert(x, y1, y2 int, rgba color.RGBA)
+	DrawHoriz(x1, x2, y int, rgba color.RGBA)
 	DrawPixel(x, y int, rgba color.RGBA)
 	//DrawLine(x1, y1, x2, y2 int, rgba color.RGBA)
 	//DrawCircle(cx, cy, r int, rgba color.RGBA)
@@ -66,20 +68,20 @@ func (t *Terminal) DrawRectangle(rect image.Rectangle, c color.Color) {
 
 }
 
-//func (t *Terminal) DrawVert(x, y1, y2 int, color color.Color) error {
-//	if y1 > y2 {
-//		y2, y1 = y1, y2
-//	}
-//	return t.DrawRectangle(x, y1, 1, y2-y1, color)
-//}
-//
-//func (t *Terminal) DrawHoriz(x1, x2, y int, color color.Color) error {
-//	if x1 > x2 {
-//		x2, x1 = x1, x2
-//	}
-//	return t.DrawRectangle(x1, y, x2-x1, 1, color)
-//}
-//
+func (t *Terminal) DrawVert(x, y1, y2 int, color color.Color) {
+	if y1 > y2 {
+		y2, y1 = y1, y2
+	}
+	t.DrawRectangle(image.Rect(x, y1, x, y2), color)
+}
+
+func (t *Terminal) DrawHoriz(x1, x2, y int, color color.Color) {
+	if x1 > x2 {
+		x2, x1 = x1, x2
+	}
+	t.DrawRectangle(image.Rect(x1, y, x2, y), color)
+}
+
 func (t *Terminal) DrawPixel(x, y int, color color.Color) {
 	t.DrawRectangle(image.Rect(x, y, x+1, y+1), color)
 }
