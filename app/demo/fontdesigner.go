@@ -12,7 +12,7 @@ func FontDesigner() *font.Grid {
 		CellHeight:      22,
 		XCells:          8,
 		YCells:          11,
-		Center: true,
+		Center:          true,
 		Thickness:       1,
 		BackgroundColor: output.ColorRed,
 		LineColor:       output.ColorBlack,
@@ -21,7 +21,8 @@ func FontDesigner() *font.Grid {
 
 	grid := font.NewGrid(opts)
 
-	grid.Draw = func() {
+	grid.Component.Draw = func() {
+		grid.Draw()
 		//grid.DrawRectangle(grid.Rectangle, grid.Background)
 	}
 

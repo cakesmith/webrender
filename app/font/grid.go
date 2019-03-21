@@ -97,8 +97,8 @@ func NewGrid(opts GridOptions) *Grid {
 			grid.Center()
 		}
 
-		for y := grid.Min.Y; y <  grid.Min.Y + opts.YCells * opts.CellHeight; y = y + opts.CellHeight {
-			for x := grid.Min.X; x < grid.Min.X + opts.XCells * opts.CellWidth; x = x + opts.CellWidth {
+		for y := grid.Min.Y; y < grid.Min.Y+opts.YCells*opts.CellHeight; y = y + opts.CellHeight {
+			for x := grid.Min.X; x < grid.Min.X+opts.XCells*opts.CellWidth; x = x + opts.CellWidth {
 
 				bounds := image.Rect(x, y, x+opts.CellWidth, y+opts.CellHeight)
 				cell := NewCell(bounds, opts.BackgroundColor, opts.ActiveColor)

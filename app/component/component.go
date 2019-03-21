@@ -55,13 +55,17 @@ func (container *Container) Add(component *Component) {
 
 func (container *Container) Draw() {
 	for _, comp := range container.components {
-		comp.Draw()
+		if comp.Draw != nil {
+			comp.Draw()
+		}
 	}
 }
 
 func (container *Container) Init() {
 	for _, comp := range container.components {
-		comp.Init()
+		if comp.Init != nil {
+			comp.Init()
+		}
 	}
 }
 
