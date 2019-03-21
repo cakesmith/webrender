@@ -59,7 +59,6 @@ func TestCell(t *testing.T) {
 		t.Error("expected cell.active to be true")
 	}
 
-
 }
 
 func TestGrid(t *testing.T) {

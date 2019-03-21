@@ -35,7 +35,7 @@ func main() {
 		// handle the rest of the request, with actions
 		main.MakeHandler(main)(w, r)
 
-		ta := demo.TextArea(main.Rectangle)
+		ta := demo.FontDesigner()
 
 		main.Add(ta.Component)
 

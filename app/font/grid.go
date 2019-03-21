@@ -1,7 +1,6 @@
 package font
 
 import (
-	"fmt"
 	"github.com/cakesmith/webrender/app/component"
 	"image"
 	"image/color"
@@ -16,7 +15,7 @@ type Cell struct {
 func NewCell(bounds image.Rectangle, background, c color.Color) *Cell {
 
 	cell := &Cell{
-		Component:  &component.Component{
+		Component: &component.Component{
 			Rectangle:  bounds,
 			Color:      c,
 			Init:       nil,
@@ -50,12 +49,11 @@ func NewCell(bounds image.Rectangle, background, c color.Color) *Cell {
 
 type Grid struct {
 	*component.Component
-	Background             color.Color
+	Background            color.Color
 	CharWidth, CharHeight int
 }
 
 type GridOptions struct {
-
 	CellWidth,
 	CellHeight,
 	XCells,
@@ -63,6 +61,8 @@ type GridOptions struct {
 	X,
 	Y,
 	Thickness int
+
+	Center bool
 
 	BackgroundColor,
 	LineColor,
@@ -74,41 +74,40 @@ type GridOptions struct {
 //yCells = number of cells tall
 //(x, y) is the top left point of the grid
 //thickness is the thickness of the grid lines
-func NewGrid(g GridOptions) *Grid {
+func NewGrid(opts GridOptions) *Grid {
 
-	width := g.CellWidth * g.XCells
-	height := g.CellHeight * g.YCells
+	width := opts.CellWidth * opts.XCells
+	height := opts.CellHeight * opts.YCells
 
 	grid := &Grid{
-		Component:  &component.Component{
-			Rectangle:  image.Rect(g.X, g.Y, g.X + width, g.Y + height),
-			Color:      g.LineColor,
+		Component: &component.Component{
+			Rectangle: image.Rect(opts.X, opts.Y, opts.X+width, opts.Y+height),
+			Color:     opts.LineColor,
 		},
-		Background: g.BackgroundColor,
+		Background: opts.BackgroundColor,
 		CharWidth:  0,
 		CharHeight: 0,
 	}
 
 	grid.Init = func() {
 
-		numCells := g.XCells * g.YCells
+		//numCells := g.XCells * g.YCells
 
-		for y := 0; y < g.YCells; y++ {
-			for x := 0; x < g.XCells; x++ {
+		if opts.Center {
+			grid.Center()
+		}
 
-				cx := x * g.CellWidth
-				cy := y * g.CellHeight
+		for y := grid.Min.Y; y <  grid.Min.Y + opts.YCells * opts.CellHeight; y = y + opts.CellHeight {
+			for x := grid.Min.X; x < grid.Min.X + opts.XCells * opts.CellWidth; x = x + opts.CellWidth {
 
-				bounds := image.Rect(cx, cy, cx +g.CellWidth, cy +g.CellHeight)
-				cell := NewCell(bounds, g.BackgroundColor, g.ActiveColor)
+				bounds := image.Rect(x, y, x+opts.CellWidth, y+opts.CellHeight)
+				cell := NewCell(bounds, opts.BackgroundColor, opts.ActiveColor)
 				grid.Container.Add(cell.Component)
 
 			}
 		}
 
-		fmt.Println(numCells)
-
-		//grid.Draw()
+		grid.Container.Draw()
 
 	}
 

@@ -30,6 +30,14 @@ type Container struct {
 	output.Terminal
 }
 
+func (container *Container) Width() int {
+	return container.Rectangle.Max.X - container.Rectangle.Min.X
+}
+
+func (container *Container) Height() int {
+	return container.Rectangle.Max.Y - container.Rectangle.Min.Y
+}
+
 func (container *Container) Add(component *Component) {
 
 	if container.components == nil {
@@ -107,6 +115,20 @@ func (comp *Component) Width() int {
 
 func (comp *Component) Height() int {
 	return comp.Rectangle.Max.Y - comp.Rectangle.Min.Y
+}
+
+func (comp *Component) Center() {
+
+	w := comp.Width()
+	h := comp.Height()
+
+	gw := comp.Container.Width()
+	gh := comp.Container.Height()
+
+	x := int(gw/2) - int(w/2)
+	y := int(gh/2) - int(h/2)
+
+	comp.Rectangle = image.Rect(x, y, x+int(w), y+int(h))
 }
 
 type Border struct {

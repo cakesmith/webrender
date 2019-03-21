@@ -31,7 +31,6 @@ var (
 	}
 )
 
-
 // Dead code
 type Drawer interface {
 	DrawRectangle(rectangle image.Rectangle, rgba color.RGBA)
