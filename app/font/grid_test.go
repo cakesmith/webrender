@@ -87,4 +87,15 @@ func TestGrid(t *testing.T) {
 		fmt.Println("expected draw function to be called")
 	}
 
+	main.OnClick(0, opts.X + opts.CellWidth * 2 -1, opts.Y + opts.CellHeight * 2 -1)
+
+	expected := "0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0"
+	actual := grid.String()
+
+	if expected != actual {
+		t.Errorf("expected\n%v\nreceived\n%v", expected, actual)
+	}
+
+
+
 }

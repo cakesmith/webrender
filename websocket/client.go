@@ -100,7 +100,7 @@ type call struct {
 	Error error
 }
 
-type Actions interface {
+type ClientActions interface {
 	OnRecv([]byte)
 	OnRegister()
 }
@@ -151,7 +151,7 @@ func (client *Client) Request(payload []string) ([]byte, error) {
 	return call.res, nil
 }
 
-func (client *Client) MakeHandler(actions Actions) http.HandlerFunc {
+func (client *Client) MakeHandler(actions ClientActions) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 

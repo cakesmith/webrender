@@ -15,16 +15,11 @@ func FontDesigner() *font.Grid {
 		Center:          true,
 		Thickness:       1,
 		BackgroundColor: output.ColorRed,
-		LineColor:       output.ColorBlack,
+		LineColor:       output.ColorWhite,
 		ActiveColor:     output.ColorTerminalGreen,
 	}
 
 	grid := font.NewGrid(opts)
-
-	grid.Component.Draw = func() {
-		grid.Draw()
-		//grid.DrawRectangle(grid.Rectangle, grid.Background)
-	}
 
 	return grid
 }
