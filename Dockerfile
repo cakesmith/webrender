@@ -5,7 +5,7 @@ FROM znly/protoc as protoc
 ARG WORKDIR
 WORKDIR $WORKDIR
 ADD protos protos
-RUN mkdir protos/go protos/js
+RUN mkdir -p protos/go protos/js
 RUN protoc --go_out=./protos/go --js_out=./protos/js protos/RFB.proto
 
 FROM golang:1.12.1-alpine3.9 as golang
@@ -18,7 +18,7 @@ ADD . .
 COPY --from=protoc $WORKDIR/protos protos
 RUN go get ./...
 RUN CGO_ENABLED=0 go test ./...
-RUN mkdir /build
+RUN mkdir -p /build
 RUN CGO_ENABLED=0 go build -o /build/webrender
 
 FROM heroku/heroku:18
