@@ -22,7 +22,7 @@ func createContainer(w, h int) (*component.Container, *bytes.Buffer) {
 	return &main, buf
 }
 
-func TestCell(t *testing.T) {
+func XTestCell(t *testing.T) {
 
 	main, buf := createContainer(width, height)
 
@@ -62,7 +62,7 @@ func TestCell(t *testing.T) {
 
 }
 
-func TestGrid(t *testing.T) {
+func XTestGrid(t *testing.T) {
 
 	main, buf := createContainer(width, height)
 

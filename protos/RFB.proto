@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+message DisplayUpdate {
+
+    message Pixel {
+        int32 coords = 1;
+        int32 color = 2;
+    }
+
+    repeated Pixel pixels = 1;
+
+}
+
+message KeyboardEvent {
+    int32 key = 1;
+}
+
+message MouseEvent {
+    int32 coords = 1;
+    int32 button = 2;
+}
+

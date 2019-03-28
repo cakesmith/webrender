@@ -7,6 +7,6 @@ type Login struct {
 
 }
 
-func (login *Login) Authenticate(name, password string) bool {
-
-}
+//func (login *Login) Authenticate(name, password string) bool {
+//
+//}
