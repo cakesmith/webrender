@@ -20,7 +20,7 @@ RUN CGO_ENABLED=0 go test ./...
 RUN mkdir /build
 RUN CGO_ENABLED=0 go build -o /build/webrender
 
-FROM scratch
+FROM heroku/heroku:18
 ARG WORKDIR
 EXPOSE $PORT
 ENV PORT=$PORT
