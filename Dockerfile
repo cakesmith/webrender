@@ -28,4 +28,6 @@ ENV PORT=$PORT
 COPY --from=protoc $WORKDIR/protos/js ./public
 COPY --from=golang $WORKDIR/public ./public
 COPY --from=golang /build .
+RUN adduser -D myuser
+USER myuser
 CMD ["./webrender"]
