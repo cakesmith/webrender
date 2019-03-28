@@ -5,6 +5,7 @@ FROM znly/protoc as protoc
 ARG WORKDIR
 WORKDIR $WORKDIR
 ADD protos protos
+RUN mkdir protos/go protos/js
 RUN protoc --go_out=./protos/go --js_out=./protos/js protos/RFB.proto
 
 FROM golang:1.12.1-alpine3.9 as golang
