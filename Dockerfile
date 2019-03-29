@@ -19,7 +19,7 @@ COPY --from=protoc $WORKDIR/protos protos
 RUN go get ./...
 RUN CGO_ENABLED=0 go test ./...
 RUN mkdir -p /build
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /build/webrender .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /build/webrender .
 
 #FROM heroku/heroku:18
 FROM scratch
@@ -31,4 +31,4 @@ COPY --from=golang $WORKDIR/public ./public
 COPY --from=golang /build .
 #RUN useradd -ms /bin/bash myuser
 #USER myuser
-CMD ["/webrender"]
+CMD ["./webrender"]
