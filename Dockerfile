@@ -24,7 +24,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s"  -o /build/w
 FROM alpine:3.9
 ARG WORKDIR
 EXPOSE $PORT
-RUN apk update && apk add --no-cache ca-certificates tzdata && update-ca-certificates
 COPY --from=protoc $WORKDIR/protos/js /public
 COPY --from=golang $WORKDIR/public /public
 COPY --from=golang build /
