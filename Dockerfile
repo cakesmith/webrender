@@ -13,22 +13,27 @@ ARG GOPATH
 ARG WORKDIR
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 WORKDIR $WORKDIR
-RUN apk update && apk add --no-cache git
+# Create appuser.
+RUN adduser -D -g '' appuser
+RUN apk update && apk add --no-cache git ca-certificates tzdata && update-ca-certificates
 ADD . .
 COPY --from=protoc $WORKDIR/protos protos
 RUN go get ./...
 RUN CGO_ENABLED=0 go test ./...
 RUN mkdir -p /build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /build/webrender .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s"  -o /build/webrender
 
-#FROM heroku/heroku:18
+#FROM alpine:3.9
 FROM scratch
 ARG WORKDIR
 EXPOSE $PORT
-ENV PORT=$PORT
+#ENV PORT=$PORT
 COPY --from=protoc $WORKDIR/protos/js /public
+COPY --from=golang /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=golang /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=golang /etc/passwd /etc/passwd
 COPY --from=golang $WORKDIR/public /public
 COPY --from=golang build /
 #RUN useradd -ms /bin/bash myuser
-#USER myuser
-CMD ["/webrender"]
+USER appuser
+CMD ["./webrender"]
