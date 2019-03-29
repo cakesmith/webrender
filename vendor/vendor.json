@@ -21,6 +21,12 @@
 			"revisionTime": "2017-10-03T20:18:52Z"
 		},
 		{
+			"checksumSHA1": "Y2MOwzNZfl4NRNDbLCZa6sgx7O0=",
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "d3c38a4eb4970272b87a425ae00ccc4548e2f9bb",
+			"revisionTime": "2019-03-18T19:48:12Z"
+		},
+		{
 			"checksumSHA1": "qWSfv6nFxKXv9aIvOB/A+oJ47a8=",
 			"path": "github.com/gorilla/websocket",
 			"revision": "f37d1588608ec036fa9b0b7b8afbde47dc06aea9",
