@@ -26,9 +26,9 @@ FROM scratch
 ARG WORKDIR
 EXPOSE $PORT
 ENV PORT=$PORT
-COPY --from=protoc $WORKDIR/protos/js ./public
-COPY --from=golang $WORKDIR/public ./public
-COPY --from=golang /build .
+COPY --from=protoc $WORKDIR/protos/js /public
+COPY --from=golang $WORKDIR/public /public
+COPY --from=golang build /
 #RUN useradd -ms /bin/bash myuser
 #USER myuser
-CMD ["./webrender"]
+CMD ["/webrender"]
