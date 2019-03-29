@@ -1,3 +1,4 @@
+//go:generate $PWD/protogen.sh
 package main
 
 import (
