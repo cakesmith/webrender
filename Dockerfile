@@ -21,14 +21,13 @@ RUN CGO_ENABLED=0 go test ./...
 RUN mkdir -p /build
 RUN CGO_ENABLED=0 go build -o /build/webrender
 
-#FROM heroku/heroku:18
-FROM scratch
+FROM heroku/heroku:18
 ARG WORKDIR
 EXPOSE $PORT
 ENV PORT=$PORT
 COPY --from=protoc $WORKDIR/protos/js ./public
 COPY --from=golang $WORKDIR/public ./public
 COPY --from=golang /build .
-#RUN useradd -ms /bin/bash myuser
-#USER myuser
+RUN useradd -ms /bin/bash myuser
+USER myuser
 CMD ["./webrender"]
