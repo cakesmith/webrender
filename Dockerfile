@@ -19,7 +19,7 @@ COPY --from=protoc $WORKDIR/protos protos
 RUN go get ./...
 RUN CGO_ENABLED=0 go test ./...
 RUN mkdir -p /build
-RUN CGO_ENABLED=0 go build -o /build/webrender
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /build/webrender .
 
 #FROM heroku/heroku:18
 FROM scratch
