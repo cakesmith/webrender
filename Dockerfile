@@ -31,4 +31,4 @@ COPY --from=golang $WORKDIR/public ./public
 COPY --from=golang /build .
 #RUN useradd -ms /bin/bash myuser
 #USER myuser
-CMD ["./webrender"]
+CMD ["/webrender"]
